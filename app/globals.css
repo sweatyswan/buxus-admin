@@ -1,0 +1,275 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  --radius-4xl: 24px;
+}
+
+:root {
+  --background: #f4f5fc;
+  --foreground: #11162e;
+  --card: #ffffff;
+  --card-foreground: #11162e;
+  --popover: #ffffff;
+  --popover-foreground: #11162e;
+  --primary: #245fc4;
+  --primary-foreground: #ffffff;
+  --secondary: #e8eaf2;
+  --secondary-foreground: #11162e;
+  --muted: #e8eaf2;
+  --muted-foreground: #5c6173;
+  --accent: #eff6ff;
+  --accent-foreground: #245fc4;
+  --destructive: #b02500;
+  --border: #d8dbe6;
+  --input: #737578;
+  --ring: #245fc4;
+  --chart-1: #245fc4;
+  --chart-2: #177648;
+  --chart-3: #8a5a10;
+  --chart-4: #5c6173;
+  --chart-5: #11162e;
+  --radius: 8px;
+  --sidebar: #e4e6f0;
+  --sidebar-foreground: #5c6173;
+  --sidebar-primary: #245fc4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #d9dce8;
+  --sidebar-accent-foreground: #5c6173;
+  --sidebar-border: #d8dbe6;
+  --sidebar-ring: #245fc4;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
+
+.tree {
+  --col-id: 64px;
+  --col-status: 120px;
+  --col-kids: 100px;
+  --col-date: 104px;
+  --col-act: 164px;
+  --tree-cols: minmax(0, 1fr) var(--col-id) var(--col-status) var(--col-kids) var(--col-date) var(--col-act);
+  overflow-x: auto;
+}
+.tree-head,
+.tree-row,
+.group-bar {
+  display: grid;
+  grid-template-columns: var(--tree-cols);
+  column-gap: 12px;
+  align-items: center;
+}
+.tree-head {
+  min-height: 36px;
+  margin: 0 0 8px;
+  padding: 0 24px 0 0;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 550;
+}
+.tree-name {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 20px;
+}
+.tree-id,
+.tree-status,
+.tree-kids,
+.tree-date,
+.tree-act {
+  min-width: 0;
+}
+.tree-date {
+  justify-self: end;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tree-row .tree-kids,
+.tree-row .tree-date {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 450;
+}
+.tree-row [data-slot="badge"] {
+  font-size: 13px;
+  line-height: 20px;
+}
+.tree-act {
+  justify-self: end;
+}
+.tree-row:has(+ .tree-row)::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--bar) + var(--radius));
+  right: calc(16px + var(--radius));
+  bottom: 0;
+  height: 1px;
+  background: rgba(26, 26, 26, 0.08);
+  pointer-events: none;
+  z-index: 2;
+}
+[data-slot="card"] {
+  box-shadow:
+    0 1px 0 rgba(26, 26, 26, 0.05),
+    0 1px 3px rgba(26, 26, 26, 0.1);
+}
+.limb {
+  position: relative;
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 8px;
+  padding-right: 8px;
+}
+.limb::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 var(--bar);
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+.limb:hover:not(.mark)::before {
+  background: var(--background);
+}
+.limb.mark::before {
+  background: var(--accent);
+}
+.limb > * {
+  position: relative;
+  z-index: 1;
+}
+.limb .rail {
+  top: 0;
+  bottom: 0;
+}
+.tree-branch {
+  position: relative;
+}
+.rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  pointer-events: none;
+}
+.tree-row::before {
+  content: "";
+  position: absolute;
+  inset: 0 16px 0 var(--bar);
+  border-radius: var(--radius);
+  pointer-events: none;
+  z-index: 0;
+}
+.tree-row:hover:not(.mark)::before,
+.tree-row:focus-within:not(.mark)::before {
+  background: var(--background);
+}
+.tree-row.mark::before {
+  background: var(--accent);
+}
+.tree-row > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tree-row .rel,
+.tree-row .preview {
+  opacity: 0;
+}
+.tree-row.reorder .rel {
+  opacity: 1;
+}
+.tree-row:hover .rel,
+.tree-row:focus-within .rel,
+.tree-row .rel:has([data-popup-open], [aria-expanded="true"]),
+.tree-row:hover .preview,
+.tree-row:focus-within .preview {
+  opacity: 1;
+}
+
+.group-bar {
+  position: relative;
+  height: 36px;
+  margin: 8px 0;
+}
+.group-bar::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0 16px 0 var(--bar);
+  background: var(--muted);
+  border-radius: var(--radius);
+}
+.group-bar > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
