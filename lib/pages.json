@@ -28,7 +28,8 @@
     "id": 243,
     "type": "Priečinok",
     "status": "pub",
-    "parent": "Web"
+    "parent": "Web",
+    "children": 0
   },
   {
     "name": "Blog",

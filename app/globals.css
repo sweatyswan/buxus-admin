@@ -226,6 +226,22 @@
 .tree-row.mark::before {
   background: var(--accent);
 }
+.tree-row.drop::before {
+  background: transparent;
+  border: 1px dashed var(--primary);
+}
+.tree-row.dragging {
+  z-index: 4;
+  cursor: grabbing;
+}
+.tree-row.dragging::before {
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(17, 22, 46, 0.18);
+}
+.tree-row.drop::after,
+.tree-row.dragging::after {
+  opacity: 0;
+}
 .tree-row > * {
   position: relative;
   z-index: 1;

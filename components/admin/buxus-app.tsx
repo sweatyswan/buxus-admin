@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { ArrowUpNarrowWide } from "@keyline-icons/react"
+import { List } from "@keyline-icons/react"
 import { CircleHelp, Menu, Search } from "lucide-react"
 
 import { IconHint } from "@/components/admin/icon-hint"
@@ -43,6 +43,7 @@ import {
   orderByIds,
   pagePath,
   slugFromName,
+  stran,
   type PageNode,
 } from "@/lib/pages"
 
@@ -94,6 +95,12 @@ export function BuxusApp() {
     () => flatten(pages).filter((page) => matches(page, query)).slice(0, 6),
     [pages, query]
   )
+  const resultCount = useMemo(() => {
+    const needle = query.trim()
+    if (!needle) return null
+    const found = flatten(pages).filter((page) => matches(page, needle))
+    return mode === "prop" ? found.filter((page) => page.detail).length : found.length
+  }, [pages, query, mode])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -357,6 +364,11 @@ export function BuxusApp() {
                       {query} ×
                     </Button>
                   ) : null}
+                  {resultCount !== null ? (
+                    <p className="m-0 text-[13px] leading-5 text-muted-foreground tabular-nums" aria-live="polite">
+                      {stran(resultCount)}
+                    </p>
+                  ) : null}
                   <DropdownMenu>
                     <IconHint label="Zobraziť podľa">
                       <DropdownMenuTrigger
@@ -372,7 +384,7 @@ export function BuxusApp() {
                           />
                         }
                       >
-                        <ArrowUpNarrowWide />
+                        <List />
                       </DropdownMenuTrigger>
                     </IconHint>
                     <DropdownMenuContent align="end" className="min-w-[220px]">

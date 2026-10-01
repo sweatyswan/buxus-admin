@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
+
+let draggingId: number | null = null
 import { GripVertical, ListCollapse } from "@keyline-icons/react"
 import { ChevronRight, Eye } from "lucide-react"
 
@@ -97,14 +99,26 @@ function PageRow({
   onSaveReorder?: () => void
 }) {
   const [over, setOver] = useState(false)
-  const canOpen = !!(page.kids && page.kids.length)
+  const [dragging, setDragging] = useState(false)
+  const canOpen = !!(page.kids && page.kids.length) || page.children === 0
+  useEffect(() => {
+    const clear = () => setOver(false)
+    window.addEventListener("dragend", clear)
+    return () => window.removeEventListener("dragend", clear)
+  }, [])
   const pad = INDENT + depth * STEP
   return (
     <div
-      className={cn("tree-row relative min-h-9 rounded-md pr-6", marked && "mark", editing && "reorder", over && "bg-accent/60")}
+      className={cn(
+        "tree-row relative min-h-9 rounded-md pr-6",
+        marked && "mark",
+        editing && "reorder",
+        dragging && "dragging",
+        over && "drop"
+      )}
       style={{ ["--bar" as string]: `${pad + 36}px` }}
       onDragOver={(event) => {
-        if (!sortable) return
+        if (!sortable || draggingId === page.id) return
         event.preventDefault()
         setOver(true)
       }}
@@ -128,8 +142,14 @@ function PageRow({
               className="size-7 shrink-0 cursor-grab text-muted-foreground active:cursor-grabbing [&_svg]:size-4"
               aria-label="Presunúť"
               onDragStart={(event) => {
+                draggingId = page.id
+                setDragging(true)
                 event.dataTransfer.setData("text/plain", String(page.id))
                 event.dataTransfer.effectAllowed = "move"
+              }}
+              onDragEnd={() => {
+                draggingId = null
+                setDragging(false)
               }}
             >
               <GripVertical />
@@ -287,13 +307,23 @@ function GroupBar({
   )
 }
 
-function BranchBody({ page, onRetry }: { page: PageNode; onRetry: (id: number) => void }) {
+function BranchBody({
+  page,
+  onRetry,
+  onInsert,
+}: {
+  page: PageNode
+  onRetry: (id: number) => void
+  onInsert: (name: string) => void
+}) {
   if (page.kids && page.kids.length) return null
   if (page.children === 0) {
     return (
       <div className="mb-2 py-2 pr-2 pl-[calc(var(--line)+48px)]">
         <p className="text-[13px] leading-5">Ešte tu nič nie je.</p>
-        <p className="text-xs leading-4 text-muted-foreground">Podstránky pridáte v tomto priečinku.</p>
+        <Button variant="soft" size="compact" onClick={() => onInsert("stránku")}>
+          Vložiť stránku
+        </Button>
       </div>
     )
   }
@@ -375,7 +405,7 @@ function RenderPage({
         onSaveReorder,
       })
     : open
-      ? <BranchBody page={page} onRetry={onRetry} />
+      ? <BranchBody page={page} onRetry={onRetry} onInsert={onInsert} />
       : null
   return (
     <>
