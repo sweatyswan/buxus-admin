@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BUXUS · Navigátor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  /* Open Sans z Inspinie. Škála 12 / 16 / 20. Telo 16/24. Meta 12/16. Titulok 20/24.
+     Rezy 400 / 500 / 700. Farby z Buxus 7.7.4, AA-upravené. */
+  :root {
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+    --g0: #f4f5fc; --g1: #e8eaf2; --g2: #d8dbe6;
+    --bd: #737578;
+    --g4: #5c6173; --g5: #5c6173; --g6: #11162e; --g7: #11162e;
+    --ac: #245fc4; --ac-h: #09558e; --ac-a: #084776; --ac1: #eff6ff; --ac2: #e7f1ff;
+    --ok: #0f5c36; --ok1: #9ef0c4;
+    --warn: #245fc4; --warn1: #eff6ff;
+    --err: #b02500; --err1: #fff5f2;
+    --r: 8px; --r-card: 12px; --pill: 999px;
+    --font: "Open Sans", "Helvetica Neue", Helvetica, ui-sans-serif, system-ui, sans-serif;
+    --t-title: 20px; --t: 16px; --t-meta: 12px;
+    --side: 248px;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--g0); color: var(--g7);
+    font: 400 var(--t)/24px var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus { outline: none; }
+  :focus-visible { outline: 1px solid var(--ac); outline-offset: 2px; }
+  svg { display: block; }
+  input[type="checkbox"] { accent-color: var(--ac); width: 16px; height: 16px; flex: 0 0 16px; }
+  .app { display: grid; grid-template-columns: var(--side) 1fr; min-height: 100%; }
+
+  .side {
+    background: #e4e6f0; border-right: 1px solid var(--g2); color: #5c6173;
+    display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+  }
+  .brand {
+    height: 56px; display: flex; align-items: center; padding: 0 var(--s4);
+    font-weight: 700; font-size: var(--t-title); line-height: 24px;
+    background: #1a1a1a; color: #fff; border-bottom: 1px solid #2a2a2a;
+  }
+  .brand-short, .nav-short { display: none; }
+  .nav-ico { flex: 0 0 20px; }
+  .nav { padding: var(--s2); overflow: auto; flex: 1; }
+  .nav details { margin: 0 0 var(--s1); }
+  .nav summary {
+    list-style: none; height: 32px; display: flex; align-items: center; gap: var(--s2);
+    padding: 0 var(--s2); border-radius: var(--r); font-size: 13px; line-height: 20px; font-weight: 600; cursor: pointer;
+  }
+  .nav summary::-webkit-details-marker { display: none; }
+  .nav summary:active { background: #d9dce8; }
+  .nav summary .chev { margin-left: auto; transition: transform .15s ease-out; }
+  .nav details[open] summary .chev { transform: rotate(90deg); }
+  .nav a, .nav button.linkish {
+    display: flex; align-items: center; height: 32px; width: 100%;
+    padding: 0 var(--s2) 0 32px; border: 0; background: transparent; border-radius: var(--r);
+    color: #5c6173; text-decoration: none; text-align: left;
+    font-size: 13px; line-height: 20px; font-weight: 450;
+  }
+  .nav a:hover, .nav button.linkish:hover { background: #d9dce8; color: #5c6173; }
+  .nav a:active, .nav button.linkish:active { background: #d0d3e0; }
+  .nav a.on { background: #d9dce8; color: #5c6173; font-weight: 450; }
+  .nav summary:hover { background: #d9dce8; }
+  .subhead { margin: var(--s2) 0 var(--s1) 32px; color: var(--g4); font-size: var(--t-meta); line-height: 16px; font-weight: 700; }
+  .side-foot { padding: var(--s3) var(--s4) var(--s4); border-top: 1px solid var(--g2); color: var(--g4); font-size: var(--t-meta); line-height: 16px; }
+  .side-foot a { color: var(--g5); min-height: 32px; display: inline-flex; align-items: center; }
+
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .top {
+    height: 56px; display: flex; align-items: center; gap: var(--s3); padding: 0 var(--s5);
+    background: #1a1a1a; color: #fff; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; z-index: 20;
+  }
+  .find { position: relative; flex: 1; max-width: 560px; }
+  .find input, .field input[type="text"], .field textarea, .editor, .src {
+    width: 100%; border: 1px solid var(--bd); border-radius: var(--r); background: #fff; font-size: var(--t);
+  }
+  .find input { height: 44px; padding: 0 44px 0 40px; background: var(--g0); }
+  .top .find input {
+    height: 36px; border-radius: 12px; font-size: 13px;
+    padding: 0 44px 0 36px; background: #303030; border-color: transparent; color: #fff;
+  }
+  .top .find input::placeholder { color: rgba(255,255,255,.55); }
+  .top .find .ic { color: rgba(255,255,255,.6); }
+  .top .find .kbd { background: transparent; border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.7); }
+  .top .icon-btn { color: #fff; }
+  .top .icon-btn:hover { background: rgba(255,255,255,.1); }
+  .top .icon-btn:active { background: rgba(255,255,255,.16); }
+  .find .ic, .find .kbd { position: absolute; top: 50%; transform: translateY(-50%); color: var(--g4); }
+  .find .ic { left: 12px; }
+  .find .kbd { right: 12px; font-size: var(--t-meta); line-height: 16px; border: 1px solid var(--g2); border-radius: var(--r); padding: 4px 8px; background: #fff; }
+  .hits {
+    position: absolute; left: 0; right: 0; top: 48px; background: #fff; border: 1px solid var(--g2);
+    border-radius: var(--r-card); padding: 4px; box-shadow: 0 8px 16px rgba(17, 22, 46, .12); z-index: 25;
+  }
+  .hits[hidden] { display: none; }
+  .hits button { width: 100%; text-align: left; min-height: 40px; border: 0; background: transparent; border-radius: var(--r); padding: 0 12px; }
+  .hits button:hover { background: var(--g0); }
+  .icon-btn {
+    width: 40px; height: 40px; border: 0; background: transparent; border-radius: var(--r); color: var(--g6);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:hover { background: var(--g0); }
+  .icon-btn:active { background: var(--g1); }
+  .icon-btn:disabled { color: var(--g4); background: transparent; cursor: default; }
+  .avatar { width: 32px; height: 32px; border-radius: var(--pill); background: var(--ac); color: #fff; border: 0; font-weight: 700; font-size: var(--t-meta); }
+  .avatar:hover { background: var(--ac-h); }
+  .avatar:active { background: var(--ac-a); }
+  .menu-btn { display: none; }
+
+  .savebar {
+    display: none; position: sticky; top: 56px; z-index: 19; margin: 0 0 var(--s5);
+    background: var(--g7); color: #fff; border-radius: var(--r-card); min-height: 64px;
+    padding: 8px 8px 8px var(--s4); align-items: center; gap: var(--s2);
+  }
+  .savebar.on { display: flex; }
+  .savebar span { flex: 1; }
+  .savebar .btn-ghost { background: transparent; color: #fff; border-color: transparent; height: 44px; }
+  .savebar .btn-ghost:hover { background: rgba(255,255,255,.12); }
+  .savebar .btn-ghost:active { background: rgba(255,255,255,.2); }
+  .savebar .btn-ghost:disabled { color: #9aa3b5; background: transparent; }
+
+  .view { padding: var(--s5); }
+  #view-nav { padding-right: 48px; }
+  .page-head { display: flex; align-items: flex-start; gap: var(--s4); margin-bottom: var(--s5); }
+  #view-detail .page-head { margin-bottom: var(--s4); }
+  .page-head h1 { margin: 0; font-size: var(--t-title); line-height: 24px; font-weight: 700; }
+  .title-row { display: flex; align-items: flex-start; gap: 12px; }
+  .back-ico {
+    width: 28px; height: 28px; flex: 0 0 28px; margin-top: -2px; border-radius: 8px; color: #303030;
+    border: 1px solid var(--bd); background: #fff;
+    box-shadow: 0 1px 0 rgba(26, 26, 26, .05), 0 1px 2px rgba(26, 26, 26, .12);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .back-ico:hover { background: var(--g0); color: #303030; }
+  .crumb { font-size: var(--t-meta); line-height: 16px; color: var(--g4); margin-bottom: var(--s2); }
+  .crumb a { color: var(--g5); text-decoration: none; }
+  .crumb a:hover { text-decoration: underline; }
+  .head-actions { margin-left: auto; display: flex; gap: var(--s2); align-items: center; flex-shrink: 0; }
+  .head-actions .btn,
+  .head-actions .btn-primary { height: 28px; padding: 6px 12px; font-size: 12px; line-height: 16px; }
+  .sub { margin: var(--s2) 0 0; color: var(--g5); font-size: var(--t-meta); line-height: 16px; display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; }
+  #detail-type { font-weight: 500; }
+
+  .btn {
+    height: 28px; padding: 0 12px; border-radius: var(--r); border: 1px solid var(--bd); background: #fff;
+    font-size: 12px; line-height: 16px;
+    font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+    text-decoration: none; color: var(--g7); transition: background .15s ease-out, border-color .15s ease-out, color .15s ease-out;
+  }
+  .btn:hover { background: var(--g1); }
+  .btn:active:not(:disabled) { background: var(--g2); }
+  .btn:disabled { color: var(--g4); background: var(--g1); border-color: var(--g2); cursor: default; }
+  .btn-primary { height: 28px; padding: 0 12px; background: var(--ac); border: 1px solid color-mix(in srgb, var(--ac) 30%, #fff); color: #fff; }
+  .btn-primary:hover { background: var(--ac-h); }
+  .btn-primary:active:not(:disabled) { background: var(--ac-a); }
+  .btn-primary:disabled, .btn-primary.is-loading { background: var(--ac1); border-color: var(--ac1); color: var(--ac); }
+  .btn-danger { background: var(--err); border: 1px solid color-mix(in srgb, var(--err) 30%, #fff); color: #fff; height: 28px; padding: 0 12px; }
+  .btn-danger:hover { background: #a82820; }
+  .btn-danger:active:not(:disabled) { background: #8e221c; }
+  .btn-sm {
+    height: 28px;
+    padding: 6px 12px;
+    font-size: var(--t-meta);
+    line-height: 16px;
+    color: var(--g6);
+  }
+  .btn-soft {
+    background: var(--ac1);
+    border: 1px solid color-mix(in srgb, var(--ac) 30%, #fff);
+    color: var(--ac-h);
+  }
+  .btn-soft:hover { background: var(--ac2); color: var(--ac-h); }
+  .btn-soft:active:not(:disabled) { background: var(--ac2); color: var(--ac-a); }
+  .row .btn-sm { position: relative; }
+  .row .btn-sm::before {
+    content: "";
+    position: absolute;
+    inset: -8px 0;
+  }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; border-radius: var(--pill); font-size: var(--t-meta); line-height: 16px; font-weight: 600; white-space: nowrap; }
+  .badge-ok { background: #b0fcc0; color: #004840; }
+  .badge-warn { background: #d4ecfc; color: #003858; }
+  .badge-id { background: var(--g1); color: var(--g5); font-variant-numeric: tabular-nums; }
+  .chip { height: 32px; border: 1px solid var(--bd); background: #fff; border-radius: var(--pill); padding: 0 8px 0 12px; display: inline-flex; align-items: center; gap: 4px; }
+  .chip:hover { background: var(--g0); }
+
+  .card {
+    background: #fff; border: 1px solid #e3e3e3; border-radius: var(--r-card); padding: var(--s4);
+    box-shadow: 0 1px 0 rgba(26, 26, 26, .05), 0 1px 3px rgba(26, 26, 26, .1);
+  }
+  .card-tree { padding-left: 0; padding-right: 0; }
+  .card-tree .index-tools { padding: 0 var(--s4); }
+  .card + .card { margin-top: var(--s4); }
+  .card h2 { margin: 0 0 var(--s4); font-size: 13px; line-height: 20px; font-weight: 600; }
+  .index-tools { display: flex; gap: var(--s3); align-items: center; margin-bottom: var(--s4); flex-wrap: wrap; }
+  .index-tools .find { flex: 1; max-width: none; min-width: 0; }
+  .index-tools .find input { height: 36px; border-radius: 12px; font-size: 13px; font-weight: 450; padding-left: 36px; border: 1px solid var(--bd); }
+  .filter-wrap { position: relative; margin-left: auto; }
+  .filter-btn {
+    position: relative; width: 28px; height: 28px; border-radius: 8px; color: #303030;
+    border: 1px solid var(--bd); background: #fff;
+    box-shadow: 0 1px 0 rgba(26, 26, 26, .05), 0 1px 2px rgba(26, 26, 26, .12);
+  }
+  .filter-btn::before { content: ""; position: absolute; inset: -6px; }
+  .filter-btn:hover { background: var(--g0); }
+  .filter-btn.on { color: var(--ac); border-color: var(--ac); }
+  .menu button[aria-checked="true"] { color: var(--ac); font-weight: 500; }
+  #icon-tip {
+    position: fixed; z-index: 80; pointer-events: none;
+    padding: 4px 10px; border-radius: 999px; background: #fff; color: #303030;
+    font-size: 12px; line-height: 16px; font-weight: 500; white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(26, 26, 26, .14), 0 0 0 1px rgba(26, 26, 26, .06);
+    transform: translate(-50%, calc(-100% - 8px));
+  }
+  #icon-tip[hidden] { display: none; }
+
+  .tree { margin: 0; padding: 0; list-style: none; }
+  .branch { position: relative; }
+  .rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--g2);
+    pointer-events: none;
+  }
+  .empty.branch-msg { margin: 0 0 8px; padding: 8px 8px 8px calc(var(--line) + 48px); }
+  .tree {
+    --col-id: 64px; --col-status: 120px; --col-kids: 100px; --col-date: 104px; --col-act: 164px;
+    --tree-cols: minmax(0, 1fr) var(--col-id) var(--col-status) var(--col-kids) var(--col-date) var(--col-act);
+    overflow-x: auto;
+  }
+  .tree-head, .row, .group-bar {
+    display: grid;
+    grid-template-columns: var(--tree-cols);
+    column-gap: 12px;
+    align-items: center;
+  }
+  .tree-head {
+    min-height: 36px; margin: 0 0 8px; padding: 0 24px 0 0;
+    background: var(--g1);
+    color: var(--g5); font-size: var(--t-meta); line-height: 16px; font-weight: 550;
+  }
+  .row-name { position: relative; display: flex; min-width: 0; align-items: center; gap: 20px; }
+  .row-title { display: flex; min-width: 0; align-items: center; gap: 4px; }
+  .tree-act { justify-self: end; }
+  .tree-date {
+    justify-self: end; color: var(--g5); font-size: var(--t-meta); line-height: 16px;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .row .tree-kids, .row .tree-date { font-size: 13px; line-height: 20px; font-weight: 450; }
+  .row .badge { font-size: 13px; line-height: 20px; }
+  .row { position: relative; min-height: 36px; padding-right: 24px; border-radius: var(--r); }
+  .row:has(+ .row)::after {
+    content: ""; position: absolute; left: calc(var(--bar) + var(--r)); right: calc(16px + var(--r)); bottom: 0; height: 1px;
+    background: rgba(26, 26, 26, .08); pointer-events: none; z-index: 2;
+  }
+  .row::before {
+    content: "";
+    position: absolute;
+    inset: 0 16px 0 var(--bar);
+    border-radius: var(--r);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .row:hover:not(.mark)::before { background: var(--g0); }
+  .row.mark::before, .row.drop::before { background: var(--ac1); }
+  .row.reorder .rel { opacity: 1; }
+  .reorder-act { display: flex; gap: 8px; }
+  .row > * { position: relative; z-index: 1; }
+  .row .rel, .row .preview { opacity: 0; }
+  .row:hover .rel,
+  .row:focus-within .rel,
+  .row .rel:has([aria-expanded="true"]),
+  .row:hover .preview,
+  .row:focus-within .preview { opacity: 1; }
+  .preview {
+    width: 28px; height: 28px; flex: 0 0 28px; color: var(--g5);
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--r); position: relative;
+  }
+  .preview::before { content: ""; position: absolute; inset: -6px; }
+  .preview:hover { background: var(--g1); color: var(--g7); }
+  .chev { width: 28px; height: 28px; flex: 0 0 28px; border: 0; background: transparent; border-radius: var(--r); color: var(--g5); display: inline-flex; align-items: center; justify-content: center; }
+  .chev:hover { background: var(--g1); }
+  .chev:active { background: var(--g2); }
+  .chev.leaf { visibility: hidden; pointer-events: none; }
+  .chev.open svg { transform: rotate(90deg); }
+  .nm { background: none; border: 0; padding: 0; font-size: 13px; line-height: 20px; font-weight: 600; text-align: left; color: var(--g7); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nm:hover { text-decoration: none; }
+  .meta { color: var(--g4); font-size: var(--t-meta); line-height: 16px; }
+  .group-bar {
+    position: relative;
+    height: 36px;
+    margin: 8px 0;
+    padding-right: 24px;
+  }
+  .group-bar .chev { height: 36px; }
+  .group-bar::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    right: 16px;
+    bottom: 0;
+    left: var(--bar);
+    background: var(--g1);
+    border-radius: var(--r);
+  }
+  .group-bar > * { position: relative; z-index: 1; }
+  .group-bar__label { color: var(--g5); font-size: var(--t-meta); line-height: 16px; font-weight: 500; }
+  .group-bar__acts { display: flex; justify-content: flex-end; gap: 8px; }
+  .group-bar__add {
+    visibility: hidden; white-space: nowrap;
+  }
+  .group-bar:hover .group-bar__add,
+  .group-bar:focus-within .group-bar__add { visibility: visible; }
+  .empty { padding: var(--s4) 0; font-size: 13px; line-height: 20px; }
+  #file-name, #bg-name { font-size: 13px; line-height: 20px; font-weight: 500; }
+  .empty p { margin: 0 0 var(--s2); }
+  .empty button.link { border: 0; background: none; color: var(--ac); font-weight: 500; text-decoration: underline; padding: 0; min-height: 32px; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: var(--s4); align-items: start; }
+  .field { display: block; margin-bottom: var(--s3); }
+  .lab, .field > span { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s2); font-size: 13px; line-height: 20px; font-weight: 500; color: var(--g6); }
+  .opt { font-weight: 400; color: var(--g4); font-style: normal; }
+  .field input[type="text"] { height: 36px; padding: 0 12px; font-size: 13px; line-height: 20px; }
+  .field textarea, .src { min-height: 120px; padding: 8px 12px; resize: vertical; font-size: 13px; line-height: 20px; }
+  .field input:hover, .field textarea:hover, .find input:hover, .src:hover { border-color: var(--g5); }
+  .field input:focus, .field textarea:focus, .find input:focus, .editor:focus, .src:focus { border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac2); }
+  .field input:active, .field textarea:active, .src:active { border-color: var(--ac-a); }
+  .field input:disabled, .field textarea:disabled { background: var(--g1); color: var(--g4); border-color: var(--g2); cursor: default; }
+  .field input.bad, .field textarea.bad { border-color: var(--err); background: var(--err1); }
+  .field input.good, .field textarea.good { border-color: var(--ok); }
+  .hint, .err, .oknote { margin: var(--s1) 0 0; font-size: var(--t-meta); line-height: 16px; min-height: 16px; }
+  .hint { color: var(--g5); }
+  .err { color: var(--err); display: flex; align-items: center; gap: 4px; visibility: hidden; }
+  .err.on { visibility: visible; }
+  .oknote { color: var(--ok); display: none; align-items: center; gap: 4px; margin: 0; font-weight: 500; }
+  .oknote.on { display: flex; }
+  .oknote svg { flex: 0 0 16px; }
+  .editor-wrap { border: 1px solid var(--bd); border-radius: var(--r); background: #fff; }
+  .editor-wrap .editor, .editor-wrap .src { border: 0; }
+  .editor-wrap:focus-within { border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac2); }
+  .toolbar { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; padding: 4px; border-bottom: 1px solid var(--g2); background: var(--g0); border-radius: 4px 4px 0 0; }
+  .toolbar button { width: 36px; height: 36px; padding: 0; border: 0; background: transparent; border-radius: var(--r); color: var(--g6); display: inline-flex; align-items: center; justify-content: center; }
+  .toolbar button:hover { background: #fff; }
+  .toolbar button:active, .toolbar button.on { background: #fff; color: var(--g7); }
+  .toolbar button:disabled { color: var(--g4); }
+  .editor { min-height: 160px; padding: 8px 12px; outline: none; font-size: 13px; line-height: 20px; }
+  .editor p { margin: 0 0 12px; }
+  .drop {
+    margin-top: var(--s4); display: flex; align-items: center; gap: var(--s3);
+    border: 1px dashed var(--g2); border-radius: var(--r); padding: var(--s3); background: var(--g0);
+  }
+  .drop.over { border-color: var(--ac); background: var(--ac1); }
+  .thumb { width: 72px; height: 48px; border-radius: var(--r); background: var(--g1); border: 1px solid var(--g2); display: grid; place-items: center; color: var(--g4); }
+  .checks { display: flex; flex-direction: column; gap: var(--s1); }
+  .checks label { display: flex; align-items: center; gap: var(--s2); min-height: 36px; font-size: 13px; line-height: 20px; }
+  .inherit { display: flex; align-items: center; gap: var(--s3); padding: var(--s3); background: var(--g0); border-radius: var(--r); }
+  .inherit p { margin: 0; flex: 1; }
+  .status-radios { display: flex; flex-direction: column; gap: 12px; }
+  .status-opt { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 20px; font-weight: 500; }
+  .status-opt > input { margin-top: 2px; }
+  .status-opt .status-name { display: block; }
+  .status-when { display: flex; align-items: flex-start; gap: 4px; margin-top: 4px; font-weight: 400; font-size: 12px; line-height: 16px; color: var(--g5); }
+  .status-when[hidden], .status-when [hidden] { display: none !important; }
+  .status-when button {
+    width: 24px; height: 24px; flex: 0 0 24px; margin-top: -2px; border: 0; background: transparent;
+    border-radius: var(--r); color: var(--g5); display: inline-flex; align-items: center; justify-content: center;
+  }
+  .status-when button:hover { background: var(--g0); color: var(--g7); }
+  .cal-scrim { position: fixed; inset: 0; z-index: 39; background: rgba(0,0,0,.1); }
+  .cal-scrim[hidden], .cal-pop[hidden] { display: none; }
+  .cal-pop {
+    position: fixed; z-index: 40; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(680px, calc(100% - 32px)); padding: 0; background: #fff;
+    border-radius: 12px; box-shadow: 0 16px 40px rgba(26,32,48,.18);
+  }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--g2); font-weight: 600; }
+  .cal-head button { width: 28px; height: 28px; border: 0; background: transparent; border-radius: 8px; }
+  .cal-body { padding: 16px; }
+  .cal-lead { margin: 0 0 12px; font-size: 13px; line-height: 20px; color: var(--g6); }
+  .cal-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .cal-field { display: flex; align-items: center; gap: 8px; height: 40px; border: 1px solid var(--bd); border-radius: 8px; padding: 0 12px; font-size: 14px; }
+  .cal-field input[type="time"] { border: 0; background: transparent; flex: 1; min-width: 0; font: inherit; color: inherit; }
+  .cal-tz { margin-left: auto; font-size: 12px; color: var(--g5); }
+  .cal-do { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; }
+  .cal-months { display: flex; align-items: flex-start; gap: 8px; }
+  .cal-nav-btn { width: 28px; height: 28px; flex: 0 0 28px; margin-top: 0; border: 0; background: transparent; border-radius: 8px; color: var(--g6); font-size: 18px; }
+  .cal-nav-btn:hover { background: var(--g0); }
+  .cal-month .cal-title { margin-bottom: 8px; text-align: center; font-size: 13px; font-weight: 600; }
+  .cal-month { flex: 1; min-width: 0; }
+  .cal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--g2); }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cal-nav button {
+    width: 28px; height: 28px; border: 0; background: transparent; border-radius: var(--r); color: var(--g5);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .cal-nav button:hover { background: var(--g0); color: var(--g7); }
+  .cal-title { font-size: 13px; line-height: 20px; font-weight: 600; }
+  .cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-week span { height: 28px; display: grid; place-items: center; font-size: 11px; color: var(--g5); }
+  .cal-grid button {
+    height: 32px; border: 0; background: transparent; border-radius: 8px; font-size: 13px; color: var(--g7);
+  }
+  .cal-grid button:hover { background: var(--g0); }
+  .cal-grid button.out { color: var(--g5); }
+  .cal-grid button.on { background: var(--ac); color: #fff; }
+  .cal-grid button.mid { background: var(--ac1); color: var(--g7); }
+  .cal-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .cal-foot label { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; color: var(--g5); }
+  .cal-foot input[type="time"] { height: 28px; padding: 0 6px; border: 1px solid var(--g2); border-radius: var(--r); background: #fff; color: var(--g7); }
+  .limb {
+    position: relative; display: flex; align-items: center; gap: 8px;
+    min-height: 36px; padding-right: 8px; font-size: 13px; line-height: 20px;
+  }
+  .limb::before {
+    content: ""; position: absolute; inset: 0 0 0 var(--bar); border-radius: var(--r); pointer-events: none;
+  }
+  .limb:hover:not(.mark)::before { background: var(--g0); }
+  .limb.mark::before { background: var(--ac1); }
+  .limb > * { position: relative; z-index: 1; }
+  .limb .rail { top: 0; bottom: 0; }
+  .menu {
+    position: absolute; right: 0; top: calc(100% + 4px); z-index: 6; min-width: 220px; background: #fff;
+    border: 1px solid var(--g2); border-radius: var(--r-card); padding: 4px; box-shadow: 0 8px 16px rgba(26,32,48,.12);
+  }
+  .menu[hidden] { display: none; }
+  .menu button { width: 100%; text-align: left; min-height: 40px; padding: 0 12px; border: 0; background: transparent; border-radius: var(--r); }
+  .menu button:hover { background: var(--g0); }
+  .menu button:active { background: var(--g1); }
+  .menu button:disabled { color: var(--g4); }
+  .menu button.danger { color: var(--err); }
+  .menu hr { border: 0; border-top: 1px solid var(--g2); margin: 4px; }
+  .rel { position: relative; }
+  .head-actions .rel { margin-left: 0; }
+
+  .scrim { display: none; }
+  .overlay { position: fixed; inset: 0; background: rgba(26,32,48,.72); display: none; align-items: center; justify-content: center; z-index: 40; padding: var(--s5); }
+  .overlay.on { display: flex; }
+  .dialog { width: min(480px, 100%); background: #fff; border-radius: var(--r-card); padding: var(--s5); position: relative; }
+  .dialog h2 { margin: 0 32px var(--s2) 0; font-size: var(--t-title); line-height: 24px; }
+  .dialog p { margin: 0 0 var(--s5); color: var(--g6); font-size: 13px; line-height: 20px; }
+  .dialog .actions { display: flex; justify-content: flex-end; gap: var(--s2); flex-wrap: wrap; }
+  .dialog-x { position: absolute; top: 12px; right: 12px; }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--g7); color: #fff;
+    border-radius: var(--r); padding: 12px 16px; display: none; z-index: 50; max-width: min(480px, calc(100% - 32px));
+  }
+  .toast.on { display: block; }
+
+  @media (max-width: 1023px) {
+    .layout { grid-template-columns: 1fr; }
+    .find .kbd { display: none; }
+  }
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .app { grid-template-columns: 128px 1fr; }
+    .side { width: 128px; position: sticky; transform: none; }
+    .menu-btn { display: none; }
+    .brand { justify-content: center; padding: 0 8px; }
+    .brand-full { display: none; }
+    .brand-short { display: inline; }
+    .nav-full { display: none; }
+    .nav-short { display: inline; }
+    .nav summary { font-size: var(--t-meta); line-height: 16px; padding: 0 8px; gap: 4px; }
+    .nav summary .chev { display: none; }
+    .nav a, .nav button.linkish { font-size: var(--t-meta); line-height: 16px; min-height: 36px; padding: 4px 8px; }
+    .subhead { margin-left: 8px; }
+  }
+  @media (max-width: 639px) {
+    .top, .view { padding-left: 16px; padding-right: 16px; }
+    .top { gap: 8px; }
+    .app { grid-template-columns: 1fr; }
+    .menu-btn { display: inline-flex; }
+    .side { position: fixed; z-index: 30; width: min(280px, 88vw); transform: translateX(-105%); transition: transform .2s ease-out; }
+    .side.open { transform: none; }
+    .scrim.on { display: block; position: fixed; inset: 0; background: rgba(26,32,48,.72); z-index: 29; }
+    .page-head { flex-direction: column; }
+    .head-actions { margin-left: 0; width: 100%; }
+    .head-actions .btn { flex: 1; }
+    .savebar { margin: 0 0 var(--s5); }
+    .index-tools { align-items: stretch; }
+    .filter-wrap { margin-left: 0; align-self: flex-end; }
+    .row { flex-wrap: wrap; padding-bottom: 8px; }
+    .dialog .actions { flex-direction: column-reverse; }
+    .dialog .actions .btn { width: 100%; }
+  }
+  @media (min-width: 1440px) {
+    #view-detail { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
+    #view-nav { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="scrim" id="scrim"></div>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand"><span class="brand-full">BUXUS</span><span class="brand-short">B</span></div>
+    <nav class="nav" aria-label="Moduly">
+      <details open>
+        <summary><svg class="nav-ico" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="3" width="12" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="nav-full">Stránky</span><span class="nav-short">Stránky</span> <svg class="chev" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <button class="linkish" type="button" data-soon>Hľadať</button>
+        <a href="#" id="go-nav" class="on">Navigátor</a>
+        <button class="linkish" type="button" data-soon>Prehliadač obrázkov</button>
+        <button class="linkish" type="button" data-soon>Prehliadač dokumentov</button>
+      </details>
+      <details>
+        <summary><svg class="nav-ico" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14" stroke="currentColor" stroke-width="1.5"/></svg><span class="nav-full">Šablóny</span><span class="nav-short">Šablóny</span> <svg class="chev" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <button class="linkish" type="button" data-soon>Typy stránok</button>
+        <button class="linkish" type="button" data-soon>Vložiť typ stránky</button>
+        <button class="linkish" type="button" data-soon>Vlastnosti</button>
+        <button class="linkish" type="button" data-soon>Vložiť vlastnosť</button>
+      </details>
+      <details>
+        <summary><svg class="nav-ico" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 16c.6-2.4 2.5-3.5 5-3.5s4.4 1.1 5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="nav-full">Používatelia</span><span class="nav-short">Použív.</span> <svg class="chev" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <button class="linkish" type="button" data-soon>Zobraziť</button>
+        <button class="linkish" type="button" data-soon>Vložiť používateľa</button>
+        <div class="subhead">Používatelia webu</div>
+        <button class="linkish" type="button" data-soon>Zobraziť používateľov</button>
+        <button class="linkish" type="button" data-soon>Vložiť používateľa webu</button>
+      </details>
+      <details>
+        <summary><svg class="nav-ico" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 3.5v2M10 14.5v2M3.5 10h2M14.5 10h2M5.2 5.2l1.4 1.4M13.4 13.4l1.4 1.4M14.8 5.2l-1.4 1.4M6.6 13.4l-1.4 1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="nav-full">Administrácia</span><span class="nav-short">Admin</span> <svg class="chev" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <button class="linkish" type="button" data-soon>Tabuľka stránok</button>
+        <button class="linkish" type="button" data-soon>Hľadať a nahradiť</button>
+        <button class="linkish" type="button" data-soon>Systémový denník</button>
+        <button class="linkish" type="button" data-soon>Search index</button>
+      </details>
+      <details>
+        <summary><svg class="nav-ico" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="5" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 7l7 5 7-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="nav-full">Distribučné zoznamy</span><span class="nav-short">Zoznamy</span> <svg class="chev" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <button class="linkish" type="button" data-soon>Zobraziť zoznamy</button>
+        <button class="linkish" type="button" data-soon>Vložiť zoznam</button>
+        <button class="linkish" type="button" data-soon>Zobraziť správy</button>
+        <button class="linkish" type="button" data-soon>Vložiť správu</button>
+        <button class="linkish" type="button" data-soon>Archivovať správy</button>
+      </details>
+      <details>
+        <summary><svg class="nav-ico" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7h10l-1 9H6L5 7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 7V5.5A2 2 0 0 1 12 5.5V7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="nav-full">Obchod</span><span class="nav-short">Obchod</span> <svg class="chev" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <button class="linkish" type="button" data-soon>Zoznam objednávok</button>
+        <button class="linkish" type="button" data-soon>Zoznam objednávok (legacy)</button>
+        <button class="linkish" type="button" data-soon>Zľavové kódy</button>
+        <button class="linkish" type="button" data-soon>Hromadné odstránenie zľavových kódov</button>
+        <button class="linkish" type="button" data-soon>Úlohy</button>
+      </details>
+      <details>
+        <summary><svg class="nav-ico" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5l3 3-8 8H4.5v-3l8-8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="nav-full">Nástroje</span><span class="nav-short">Nástroje</span> <svg class="chev" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+        <div class="subhead">Formuláre</div>
+        <button class="linkish" type="button" data-soon>Zobraziť formuláre</button>
+        <div class="subhead">Systém</div>
+        <button class="linkish" type="button" data-soon>Memcache status</button>
+        <button class="linkish" type="button" data-soon>GDPR požiadavky</button>
+        <button class="linkish" type="button" data-soon>GDPR záznamy</button>
+        <button class="linkish" type="button" data-soon>Index vyhľadávania</button>
+        <button class="linkish" type="button" data-soon>Test vyhľadávania</button>
+        <button class="linkish" type="button" data-soon>Preklady</button>
+        <button class="linkish" type="button" data-soon>Chýbajúce preklady stránok</button>
+        <button class="linkish" type="button" data-soon>Import prekladov stránok</button>
+      </details>
+    </nav>
+    <div class="side-foot">BUXUS by <a href="mailto:buxus@ui42.com">ui42</a><br>Verzia dev-redesign/admin</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <button class="icon-btn menu-btn" type="button" id="open-nav" aria-label="Otvoriť menu" data-tip="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M4 10h12M4 14h12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <label class="find">
+        <svg class="ic" width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input id="global-q" type="search" placeholder="Hľadať v BUXUSe" aria-label="Hľadať v BUXUSe" autocomplete="off">
+        <span class="kbd" aria-hidden="true">⌘K</span>
+        <div class="hits" id="hits" role="listbox" hidden></div>
+      </label>
+      <button class="icon-btn" type="button" id="help" aria-label="Pomoc" data-tip="Pomoc">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 8a2 2 0 1 1 2.4 2c-.6.3-.9.7-.9 1.3V12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 14.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="avatar" type="button" id="account" aria-label="Menu účtu" aria-expanded="false">A</button>
+    </header>
+    <div class="menu" id="account-menu" role="menu" hidden style="position:fixed;top:52px;right:24px">
+      <button type="button" role="menuitem" disabled>Administrator</button>
+      <button type="button" role="menuitem" data-soon>Vzhľad</button>
+      <button type="button" role="menuitem" data-soon>Hustota zoznamov</button>
+    </div>
+
+    <section class="view" id="view-nav">
+      <div class="page-head">
+        <div>
+          <h1>Navigátor</h1>
+        </div>
+      </div>
+      <div class="card card-tree">
+        <div class="index-tools">
+          <label class="find">
+            <svg class="ic" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <input id="q" type="search" placeholder="názov, ID alebo URL" aria-label="Hľadať stránku">
+          </label>
+          <button class="chip" type="button" id="chip" hidden>Zrušiť filter</button>
+          <div class="filter-wrap">
+            <button class="icon-btn filter-btn" type="button" id="filters" aria-label="Zobraziť podľa" aria-haspopup="menu" aria-expanded="false" data-tip="Zobraziť podľa">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18V6M2 10L5.6464 6.3536C5.8417 6.1583 6.1583 6.1583 6.3536 6.3536L10 10M14 6H16M14 10H18M14 14H20M14 18H22"/></svg>
+            </button>
+            <div class="menu" id="filter-menu" role="menu" hidden>
+              <button type="button" role="menuitemradio" data-mode="type" aria-checked="true">Podľa typu</button>
+              <button type="button" role="menuitemradio" data-mode="tree" aria-checked="false">Podľa hierarchie</button>
+              <button type="button" role="menuitemradio" data-mode="prop" aria-checked="false">Podľa vlastnosti</button>
+            </div>
+          </div>
+        </div>
+        <div id="tree" class="tree"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-detail" hidden>
+      <div class="page-head">
+        <div class="title-row">
+          <button class="back-ico" type="button" id="back-title" aria-label="Späť na navigátor" data-tip="Späť">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          </button>
+          <div>
+            <h1 id="detail-title">Ukazkovy Článok blogu bez kategorie s tagom</h1>
+            <p class="sub">
+              <span id="detail-type">Článok blogu</span>
+              <span class="badge badge-id" id="detail-id">#270</span>
+              <span id="detail-when">10. 10. 2025, 15:21</span>
+            </p>
+          </div>
+        </div>
+        <div class="head-actions">
+          <a class="btn" id="view-web" href="https://demo.buxus.sk/blog/ukazkovy-clanok-blogu-bez-kategorie-1" target="_blank" rel="noopener">Zobraziť na webe</a>
+          <div class="rel">
+            <button class="btn" type="button" id="more" aria-expanded="false" aria-haspopup="menu">Ďalšie akcie</button>
+            <div class="menu" id="more-menu" role="menu" hidden>
+              <button type="button" role="menuitem" data-soon>Duplikovať</button>
+              <button type="button" role="menuitem" data-soon>Vystrihnúť</button>
+              <button type="button" role="menuitem" data-soon>Skopírovať</button>
+              <button type="button" role="menuitem" data-soon>Zmeniť typ</button>
+              <button type="button" role="menuitem" data-soon>Nastaviť šablónu</button>
+              <button type="button" role="menuitem" data-soon>Nastaviť práva</button>
+              <button type="button" role="menuitem" data-soon>Nastaviť vkladanie</button>
+              <hr>
+              <button type="button" role="menuitem" class="danger" id="ask-delete">Odstrániť</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="savebar" id="savebar" role="status">
+        <span>Neuložené zmeny</span>
+        <button class="btn btn-ghost" type="button" id="discard">Zahodiť</button>
+        <button class="btn btn-primary" type="button" id="save">Uložiť</button>
+      </div>
+
+      <div class="layout">
+        <div>
+          <article class="card">
+            <h2>Obsah</h2>
+            <label class="field" id="name-field">
+              <span>Názov</span>
+              <input id="name" type="text" value="Ukazkovy Článok blogu bez kategorie s tagom" autocomplete="off">
+              <p class="err" id="name-err">Doplňte názov stránky.</p>
+            </label>
+            <div class="lab">Text</div>
+            <div class="editor-wrap" id="editor-wrap">
+              <div class="toolbar" role="toolbar" aria-label="Formát textu">
+                <button type="button" data-cmd="bold" aria-label="Tučné" data-tip="Tučné"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4h5.2a3 3 0 0 1 0 6H6zM6 10h6a3 3 0 0 1 0 6H6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+                <button type="button" data-cmd="italic" aria-label="Kurzíva" data-tip="Kurzíva"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4h-5M13 16H8M11.5 4L8.5 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                <button type="button" data-cmd="insertUnorderedList" aria-label="Zoznam" data-tip="Zoznam"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5h8M8 10h8M8 15h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="10" r="1" fill="currentColor"/><circle cx="4.5" cy="15" r="1" fill="currentColor"/></svg></button>
+                <button type="button" data-cmd="link" aria-label="Odkaz" data-tip="Odkaz"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8.5 11.5l3-3M8 13.5l-1.2 1.2a2.5 2.5 0 0 1-3.5-3.5L4.5 10M12 6.5l1.2-1.2a2.5 2.5 0 0 1 3.5 3.5L15.5 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                <span style="flex:1"></span>
+                <button type="button" id="src-toggle" aria-label="Zdroj" data-tip="Zdroj"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 6.5L4 10l3.5 3.5M12.5 6.5L16 10l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
+              <div class="editor" id="editor" contenteditable="true">
+                <p>Aenean eget tortor eget magna aliquet fermentum. In hac habitasse platea dictumst. Curabitur euismod lobortis porta.</p>
+              </div>
+              <textarea class="src" id="source" hidden aria-label="Zdroj textu"></textarea>
+            </div>
+            <div class="drop" id="drop">
+              <div class="thumb" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="9" r="1.2" fill="currentColor"/><path d="M4 14l4-3 3 2 2-2 3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="flex:1">
+                <div id="file-name">image_201_28_v1.jpeg</div>
+                <p class="hint" id="file-hint">Obrázok článku. Presuňte súbor sem alebo ho vyberte.</p>
+              </div>
+              <button class="btn" type="button" id="pick">Vybrať obrázok</button>
+              <input id="file" type="file" accept="image/*" hidden>
+            </div>
+            <div id="article-bits" style="margin-top:16px">
+              <div class="lab">Štítky</div>
+              <div class="checks">
+                <label><input type="checkbox" checked data-dirty> Zaujímavosti</label>
+                <label><input type="checkbox" data-dirty> Novinky</label>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" id="anno-card">
+            <h2>Anotácia</h2>
+            <label class="field">
+              <span>Krátky text <em class="opt">(nepovinné)</em></span>
+              <textarea data-dirty id="anno">Aenean eget tortor eget magna aliquet fermentum</textarea>
+              <p class="hint">Zobrazí sa v zozname článkov, nie v tele stránky.</p>
+            </label>
+          </article>
+
+          <article class="card" id="side-card">
+            <h2>Pravý stĺpec</h2>
+            <label class="field">
+              <span>Názov posledných článkov <em class="opt">(nepovinné)</em></span>
+              <input type="text" data-dirty id="f-latest">
+              <p class="hint">Nadpis zoznamu posledných článkov v pravom stĺpci.</p>
+            </label>
+            <label class="field">
+              <span>Názov štítkov <em class="opt">(nepovinné)</em></span>
+              <input type="text" data-dirty id="f-tags">
+              <p class="hint">Nadpis zoznamu štítkov v pravom stĺpci.</p>
+            </label>
+            <label class="field">
+              <span>Názov archívu <em class="opt">(nepovinné)</em></span>
+              <input type="text" data-dirty id="f-arch">
+              <p class="hint">Nadpis archívu v pravom stĺpci.</p>
+            </label>
+          </article>
+
+          <article class="card">
+            <h2>SEO</h2>
+            <div class="inherit">
+              <p>Zdedené zo šablóny. Vlastné hodnoty nastavíte, keď ich táto stránka potrebuje iné.</p>
+              <button class="btn btn-sm" type="button" id="seo-edit" aria-expanded="false">Upraviť na tejto stránke</button>
+            </div>
+            <div id="seo-fields" hidden style="margin-top:16px">
+              <label class="field">
+                <span>Popis <em class="opt">(nepovinné)</em></span>
+                <textarea data-dirty id="meta-desc" rows="3"></textarea>
+                <p class="hint"><span id="meta-count">0</span> / 170 znakov.</p>
+                <p class="err" id="meta-err">Skráťte popis na najviac 170 znakov.</p>
+              </label>
+              <label class="field">
+                <span>Titulok <em class="opt">(nepovinné)</em></span>
+                <input type="text" data-dirty id="meta-title">
+                <p class="hint"><span id="title-count">0</span> / 35 znakov. Text v záložke prehliadača má strop 65.</p>
+                <p class="err" id="title-err">Skráťte titulok na najviac 35 znakov.</p>
+              </label>
+              <label class="field">
+                <span>Názov v záložke <em class="opt">(nepovinné)</em></span>
+                <input type="text" data-dirty id="tab-title">
+                <p class="hint"><span id="tab-count">0</span> / 65 znakov.</p>
+                <p class="err" id="tab-err">Skráťte názov v záložke na najviac 65 znakov.</p>
+              </label>
+              <label class="field">
+                <span>SEO adresa <em class="opt">(nepovinné)</em></span>
+                <input type="text" data-dirty id="seo-url" value="/blog/ukazkovy-clanok-blogu-bez-kategorie-1">
+                <p class="err" id="url-err">Adresa nemá obsahovať medzery.</p>
+              </label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn" type="button" id="gen-url">Generovať z názvu</button>
+                <label class="checks" style="min-height:44px;display:flex;align-items:center;gap:8px"><input type="checkbox" data-dirty id="no-seo"> Nepoužiť SEO adresu</label>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" id="promo-card">
+            <h2>Pozadie promoboxu</h2>
+            <label class="field">
+              <span>Hodnota <em class="opt">(nepovinné)</em></span>
+              <input type="text" data-dirty id="value-field">
+            </label>
+            <button class="btn" type="button" id="add-value">Pridať hodnotu</button>
+            <div id="extra-values"></div>
+            <div class="drop" id="drop-bg" style="margin-top:16px">
+              <div style="flex:1">
+                <div id="bg-name">Obrázok nie je vybraný</div>
+                <p class="hint">Výška najviac 130 px, šírka najviac 150 px.</p>
+              </div>
+              <button class="btn" type="button" id="pick-bg">Vybrať obrázok pozadia</button>
+              <button class="btn" type="button" id="clear-bg" disabled>Odstrániť obrázok</button>
+              <input id="file-bg" type="file" accept="image/*" hidden>
+            </div>
+          </article>
+        </div>
+
+        <aside>
+          <article class="card">
+            <h2>Stav</h2>
+            <div class="status-radios" role="radiogroup" aria-label="Stav">
+              <label class="status-opt">
+                <input type="radio" name="status" value="pub" checked>
+                <span>
+                  <span class="status-name">Viditeľné</span>
+                  <span class="status-when" id="pub-when">
+                    <span id="pub-when-text">Od 10. 10. 2025, 15:21</span>
+                    <button type="button" id="pub-when-edit" aria-label="Upraviť dátum zverejnenia" aria-expanded="false" data-tip="Dátum zverejnenia">
+                      <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5l3 3-8 8H4.5v-3l8-8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    </button>
+                    <input type="hidden" id="pub-at" data-dirty value="2025-10-10T15:21">
+                    <input type="hidden" id="pub-until" data-dirty value="">
+                  </span>
+                  <div class="cal-scrim" id="cal-scrim" hidden></div>
+                  <div class="cal-pop" id="pub-cal" hidden role="dialog" aria-labelledby="cal-heading">
+                    <div class="cal-head">
+                      <span id="cal-heading">Nastaviť dátum zverejnenia</span>
+                      <button type="button" id="cal-x" aria-label="Zavrieť">×</button>
+                    </div>
+                    <div class="cal-body">
+                      <p class="cal-lead" id="cal-lead">Stránka bude viditeľná od tohto dátumu a času.</p>
+                      <div class="cal-fields">
+                        <div class="cal-field" id="cal-from-label"></div>
+                        <div class="cal-field"><input type="time" id="cal-from-time" value="15:21" aria-label="Čas od"><span class="cal-tz">GMT+2</span></div>
+                      </div>
+                      <div class="cal-fields" id="cal-until-fields" hidden>
+                        <div class="cal-field" id="cal-until-label"></div>
+                        <div class="cal-field"><input type="time" id="cal-until-time" value="23:59" aria-label="Čas do"><span class="cal-tz">GMT+2</span></div>
+                      </div>
+                      <label class="cal-do"><input type="checkbox" id="cal-until-on"> Do</label>
+                      <div class="cal-months" id="cal-months"></div>
+                    </div>
+                    <div class="cal-actions">
+                      <button type="button" class="btn" id="cal-cancel">Zrušiť</button>
+                      <button type="button" class="btn btn-primary" id="cal-save">Nastaviť</button>
+                    </div>
+                  </div>
+                </span>
+              </label>
+              <label class="status-opt">
+                <input type="radio" name="status" value="hide">
+                <span class="status-name">Skryté</span>
+              </label>
+            </div>
+          </article>
+          <article class="card">
+            <h2>Pozícia</h2>
+            <div id="pos-tree"></div>
+          </article>
+        </aside>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="icon-tip" hidden></div>
+<div class="overlay" id="overlay">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="del-title">
+    <button class="icon-btn dialog-x" type="button" id="del-x" aria-label="Zavrieť" data-tip="Zavrieť">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <h2 id="del-title">Presunúť stránku do archívu?</h2>
+    <p id="del-copy">Stránka aj jej podstránky sa presunú do archívu. Z archívu ich viete vrátiť.</p>
+    <div class="actions">
+      <button class="btn" type="button" id="del-cancel">Zrušiť</button>
+      <button class="btn btn-danger" type="button" id="del-ok">Presunúť do archívu</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const CHEV = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const EYE = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 10s2.8-5 8-5 8 5 8 5-2.8 5-8 5-8-5-8-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+function previewHref(p) {
+  if (p.id === 1) return "https://demo.buxus.sk/";
+  const slug = fold(p.name).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "stranka";
+  if (p.detail || p.type === "Článok blogu" || p.group === "Článok blogu") return "https://demo.buxus.sk/blog/" + slug;
+  return "https://demo.buxus.sk/" + slug;
+}
+const ARTICLE_HTML = "<p>Aenean eget tortor eget magna aliquet fermentum. In hac habitasse platea dictumst. Curabitur euismod lobortis porta.</p>";
+const PAGES = [{"name":"Hlavné menu","id":271,"type":"Hlavné menu","status":"pub","parent":"Web","kids":[{"name":"Tlačidlo homepage","id":272,"type":"Menu - tlačidlo homepage","status":"pub","parent":"Hlavné menu"},{"name":"Katalóg produktov","id":275,"type":"Menu - odkaz","status":"pub","parent":"Hlavné menu"}],"children":2},{"name":"Cenové hladiny darčekov","id":243,"type":"Priečinok","status":"pub","parent":"Web"},{"name":"Blog","id":230,"type":"Blog","status":"pub","parent":"Web","open":true,"kids":[{"name":"Ukazkovy Článok blogu bez kategorie s tagom","id":270,"type":"Článok blogu","status":"pub","parent":"Blog","detail":true},{"name":"Na korekciu","id":236,"type":"Kategória blogu","status":"pub","parent":"Blog","kids":[{"name":"október 4. týždeň /2025","id":238,"type":"Kategória blogu","status":"pub","parent":"Na korekciu","kids":[{"name":"Jožko dal 4 góly","id":239,"type":"Článok blogu","status":"pub","parent":"október 4. týždeň /2025"}],"children":1}],"children":1},{"name":"Ukazkovy Článok blogu bez kategorie","id":235,"type":"Článok blogu","status":"pub","parent":"Blog"},{"name":"Autori","id":231,"type":"Priečinok","status":"pub","parent":"Blog","kids":[{"name":"Peter Autorovič","id":268,"type":"Autor blogu","status":"pub","parent":"Autori"},{"name":"Peter Autorovič","id":233,"type":"Autor blogu","status":"pub","parent":"Autori"},{"name":"Martin Autorov","id":232,"type":"Autor blogu","status":"pub","parent":"Autori"}],"children":3}],"children":4},{"name":"Číselníky","id":225,"type":"Priečinok","status":"pub","parent":"Web","kids":[{"name":"Výrobca","id":229,"type":"Číselník","status":"pub","parent":"Číselníky"},{"name":"Značka","id":228,"type":"Číselník","status":"pub","parent":"Číselníky"},{"name":"Blog Authors","id":227,"type":"Číselník","status":"pub","parent":"Číselníky"},{"name":"Tags 1","id":226,"type":"Číselník","status":"pub","parent":"Číselníky","kids":[{"name":"Zaujímavosti - blog tag","id":269,"type":"Položka číselníka","status":"pub","parent":"Tags 1"},{"name":"Novinky - blog tag","id":245,"type":"Položka číselníka","status":"pub","parent":"Tags 1"}],"children":2}],"children":4},{"name":"Klientská zóna","id":216,"type":"special","status":"pub","parent":"Web","kids":[{"name":"Zoznam obľúbených","id":279,"type":"special","status":"pub","parent":"Klientská zóna"},{"name":"Adresy","id":277,"type":"special","status":"pub","parent":"Klientská zóna","kids":[{"name":"Upraviť adresu","id":278,"type":"special","status":"pub","parent":"Adresy"}],"children":1},{"name":"Bonusové body","id":242,"type":"special","status":"pub","parent":"Klientská zóna"},{"name":"Základné údaje","id":219,"type":"special","status":"pub","parent":"Klientská zóna"},{"name":"Objednávky","id":218,"type":"special","status":"pub","parent":"Klientská zóna"},{"name":"Nastavenia","id":217,"type":"special","status":"pub","parent":"Klientská zóna"}],"children":6},{"name":"Katalóg produktov","id":24,"type":"Katalóg produktov","status":"pub","parent":"Web","kids":[{"name":"Akciové produkty","id":182,"type":"Dynamická kategória","status":"pub","parent":"Katalóg produktov"},{"name":"Ovocie","id":100,"type":"Kategórie produktov","status":"pub","parent":"Katalóg produktov","kids":[{"name":"Pokazené","id":147,"type":"Podkategórie produktov","status":"pub","parent":"Ovocie","kids":[{"name":"Černice","id":148,"type":"Produkt","status":"pub","parent":"Pokazené","kids":[{"name":"Edituj","id":156,"type":"Fotografia","status":"pub","parent":"Černice"},{"name":"Edituj","id":155,"type":"Fotografia","status":"pub","parent":"Černice"},{"name":"Edituj","id":154,"type":"Fotografia","status":"pub","parent":"Černice"},{"name":"XXL","id":153,"type":"Variant produktu","status":"pub","parent":"Černice"},{"name":"XL","id":152,"type":"Variant produktu","status":"pub","parent":"Černice"},{"name":"L","id":151,"type":"Variant produktu","status":"pub","parent":"Černice"},{"name":"M","id":150,"type":"Variant produktu","status":"pub","parent":"Černice"},{"name":"S","id":149,"type":"Variant produktu","status":"pub","parent":"Černice"}],"children":8}],"children":1},{"name":"Čerstvé","id":128,"type":"Podkategórie produktov","status":"pub","parent":"Ovocie","kids":[{"name":"Hrozno","id":138,"type":"Produkt","status":"pub","parent":"Čerstvé","kids":[{"name":"Edituj","id":146,"type":"Fotografia","status":"pub","parent":"Hrozno"},{"name":"Edituj","id":145,"type":"Fotografia","status":"pub","parent":"Hrozno"},{"name":"Edituj","id":144,"type":"Fotografia","status":"pub","parent":"Hrozno"},{"name":"XXL","id":143,"type":"Variant produktu","status":"pub","parent":"Hrozno"},{"name":"XL","id":142,"type":"Variant produktu","status":"pub","parent":"Hrozno"},{"name":"L","id":141,"type":"Variant produktu","status":"pub","parent":"Hrozno"},{"name":"M","id":140,"type":"Variant produktu","status":"pub","parent":"Hrozno"},{"name":"S","id":139,"type":"Variant produktu","status":"pub","parent":"Hrozno"}],"children":8},{"name":"Kiwi","id":129,"type":"Produkt","status":"pub","parent":"Čerstvé","kids":[{"name":"Edituj","id":137,"type":"Fotografia","status":"pub","parent":"Kiwi"},{"name":"Edituj","id":136,"type":"Fotografia","status":"pub","parent":"Kiwi"},{"name":"Edituj","id":135,"type":"Fotografia","status":"pub","parent":"Kiwi"},{"name":"XXL","id":134,"type":"Variant produktu","status":"pub","parent":"Kiwi"},{"name":"XL","id":133,"type":"Variant produktu","status":"pub","parent":"Kiwi"},{"name":"L","id":132,"type":"Variant produktu","status":"pub","parent":"Kiwi"},{"name":"M","id":131,"type":"Variant produktu","status":"pub","parent":"Kiwi"},{"name":"S","id":130,"type":"Variant produktu","status":"pub","parent":"Kiwi"}],"children":8}],"children":2},{"name":"Maliny","id":119,"type":"Produkt","status":"pub","parent":"Ovocie","kids":[{"name":"Edituj","id":127,"type":"Fotografia","status":"pub","parent":"Maliny"},{"name":"Edituj","id":126,"type":"Fotografia","status":"pub","parent":"Maliny"},{"name":"Edituj","id":125,"type":"Fotografia","status":"pub","parent":"Maliny"},{"name":"XXL","id":124,"type":"Variant produktu","status":"pub","parent":"Maliny"},{"name":"XL","id":123,"type":"Variant produktu","status":"pub","parent":"Maliny"},{"name":"L","id":122,"type":"Variant produktu","status":"pub","parent":"Maliny"},{"name":"M","id":121,"type":"Variant produktu","status":"pub","parent":"Maliny"},{"name":"S","id":120,"type":"Variant produktu","status":"pub","parent":"Maliny"}],"children":8},{"name":"Jablká","id":110,"type":"Produkt","status":"pub","parent":"Ovocie","kids":[{"name":"Edituj","id":118,"type":"Fotografia","status":"pub","parent":"Jablká"},{"name":"Edituj","id":117,"type":"Fotografia","status":"pub","parent":"Jablká"},{"name":"Edituj","id":116,"type":"Fotografia","status":"pub","parent":"Jablká"},{"name":"XXL","id":115,"type":"Variant produktu","status":"pub","parent":"Jablká"},{"name":"XL","id":114,"type":"Variant produktu","status":"pub","parent":"Jablká"},{"name":"L","id":113,"type":"Variant produktu","status":"pub","parent":"Jablká"},{"name":"M","id":112,"type":"Variant produktu","status":"pub","parent":"Jablká"},{"name":"S","id":111,"type":"Variant produktu","status":"pub","parent":"Jablká"}],"children":8},{"name":"Broskyne","id":101,"type":"Produkt","status":"pub","parent":"Ovocie","kids":[{"name":"Edituj","id":109,"type":"Fotografia","status":"pub","parent":"Broskyne"},{"name":"Edituj","id":108,"type":"Fotografia","status":"pub","parent":"Broskyne"},{"name":"Edituj","id":107,"type":"Fotografia","status":"pub","parent":"Broskyne"},{"name":"XXL","id":106,"type":"Variant produktu","status":"pub","parent":"Broskyne"},{"name":"XL","id":105,"type":"Variant produktu","status":"pub","parent":"Broskyne"},{"name":"L","id":104,"type":"Variant produktu","status":"pub","parent":"Broskyne"},{"name":"M","id":103,"type":"Variant produktu","status":"pub","parent":"Broskyne"},{"name":"S","id":102,"type":"Variant produktu","status":"pub","parent":"Broskyne"}],"children":8}],"children":5},{"name":"Zelenina","id":53,"type":"Kategórie produktov","status":"pub","parent":"Katalóg produktov","kids":[{"name":"Chutná zelenina","id":81,"type":"Podkategórie produktov","status":"pub","parent":"Zelenina","kids":[{"name":"Kaleráb","id":91,"type":"Produkt","status":"pub","parent":"Chutná zelenina","kids":[{"name":"Edituj","id":99,"type":"Fotografia","status":"pub","parent":"Kaleráb"},{"name":"Edituj","id":98,"type":"Fotografia","status":"pub","parent":"Kaleráb"},{"name":"Edituj","id":97,"type":"Fotografia","status":"pub","parent":"Kaleráb"},{"name":"XXL","id":96,"type":"Variant produktu","status":"pub","parent":"Kaleráb"},{"name":"XL","id":95,"type":"Variant produktu","status":"pub","parent":"Kaleráb"},{"name":"L","id":94,"type":"Variant produktu","status":"pub","parent":"Kaleráb"},{"name":"M","id":93,"type":"Variant produktu","status":"pub","parent":"Kaleráb"},{"name":"S","id":92,"type":"Variant produktu","status":"pub","parent":"Kaleráb"}],"children":8},{"name":"Mrkva","id":82,"type":"Produkt","status":"pub","parent":"Chutná zelenina","kids":[{"name":"Edituj","id":90,"type":"Fotografia","status":"pub","parent":"Mrkva"},{"name":"Edituj","id":89,"type":"Fotografia","status":"pub","parent":"Mrkva"},{"name":"Edituj","id":88,"type":"Fotografia","status":"pub","parent":"Mrkva"},{"name":"XXL","id":87,"type":"Variant produktu","status":"pub","parent":"Mrkva"},{"name":"XL","id":86,"type":"Variant produktu","status":"pub","parent":"Mrkva"},{"name":"L","id":85,"type":"Variant produktu","status":"pub","parent":"Mrkva"},{"name":"M","id":84,"type":"Variant produktu","status":"pub","parent":"Mrkva"},{"name":"S","id":83,"type":"Variant produktu","status":"pub","parent":"Mrkva"}],"children":8}],"children":2},{"name":"Paprika","id":72,"type":"Produkt","status":"pub","parent":"Zelenina","kids":[{"name":"Edituj","id":80,"type":"Fotografia","status":"pub","parent":"Paprika"},{"name":"Edituj","id":79,"type":"Fotografia","status":"pub","parent":"Paprika"},{"name":"Edituj","id":78,"type":"Fotografia","status":"pub","parent":"Paprika"},{"name":"XXL","id":77,"type":"Variant produktu","status":"pub","parent":"Paprika"},{"name":"XL","id":76,"type":"Variant produktu","status":"pub","parent":"Paprika"},{"name":"L","id":75,"type":"Variant produktu","status":"pub","parent":"Paprika"},{"name":"M","id":74,"type":"Variant produktu","status":"pub","parent":"Paprika"},{"name":"S","id":73,"type":"Variant produktu","status":"pub","parent":"Paprika"}],"children":8},{"name":"Reďkovka","id":63,"type":"Produkt","status":"pub","parent":"Zelenina","kids":[{"name":"Edituj","id":71,"type":"Fotografia","status":"pub","parent":"Reďkovka"},{"name":"Edituj","id":70,"type":"Fotografia","status":"pub","parent":"Reďkovka"},{"name":"Edituj","id":69,"type":"Fotografia","status":"pub","parent":"Reďkovka"},{"name":"XXL","id":68,"type":"Variant produktu","status":"pub","parent":"Reďkovka"},{"name":"XL","id":67,"type":"Variant produktu","status":"pub","parent":"Reďkovka"},{"name":"L","id":66,"type":"Variant produktu","status":"pub","parent":"Reďkovka"},{"name":"M","id":65,"type":"Variant produktu","status":"pub","parent":"Reďkovka"},{"name":"S","id":64,"type":"Variant produktu","status":"pub","parent":"Reďkovka"}],"children":8},{"name":"Uhorka","id":54,"type":"Produkt","status":"pub","parent":"Zelenina","kids":[{"name":"Edituj","id":62,"type":"Fotografia","status":"pub","parent":"Uhorka"},{"name":"Edituj","id":61,"type":"Fotografia","status":"pub","parent":"Uhorka"},{"name":"Edituj","id":60,"type":"Fotografia","status":"pub","parent":"Uhorka"},{"name":"XXL","id":59,"type":"Variant produktu","status":"pub","parent":"Uhorka"},{"name":"XL","id":58,"type":"Variant produktu","status":"pub","parent":"Uhorka"},{"name":"L","id":57,"type":"Variant produktu","status":"pub","parent":"Uhorka"},{"name":"M","id":56,"type":"Variant produktu","status":"pub","parent":"Uhorka"},{"name":"S","id":55,"type":"Variant produktu","status":"pub","parent":"Uhorka"}],"children":8}],"children":4},{"name":"Hríby","id":25,"type":"Kategórie produktov","status":"pub","parent":"Katalóg produktov","kids":[{"name":"Hríb dubový","id":44,"type":"Produkt","status":"pub","parent":"Hríby","kids":[{"name":"Edituj","id":52,"type":"Fotografia","status":"pub","parent":"Hríb dubový"},{"name":"Edituj","id":51,"type":"Fotografia","status":"pub","parent":"Hríb dubový"},{"name":"Edituj","id":50,"type":"Fotografia","status":"pub","parent":"Hríb dubový"},{"name":"XXL","id":49,"type":"Variant produktu","status":"pub","parent":"Hríb dubový"},{"name":"XL","id":48,"type":"Variant produktu","status":"pub","parent":"Hríb dubový"},{"name":"L","id":47,"type":"Variant produktu","status":"pub","parent":"Hríb dubový"},{"name":"M","id":46,"type":"Variant produktu","status":"pub","parent":"Hríb dubový"},{"name":"S","id":45,"type":"Variant produktu","status":"pub","parent":"Hríb dubový"}],"children":8},{"name":"Šampióny","id":35,"type":"Produkt","status":"pub","parent":"Hríby","kids":[{"name":"Edituj","id":43,"type":"Fotografia","status":"pub","parent":"Šampióny"},{"name":"Edituj","id":42,"type":"Fotografia","status":"pub","parent":"Šampióny"},{"name":"Edituj","id":41,"type":"Fotografia","status":"pub","parent":"Šampióny"},{"name":"XXL","id":40,"type":"Variant produktu","status":"pub","parent":"Šampióny"},{"name":"XL","id":39,"type":"Variant produktu","status":"pub","parent":"Šampióny"},{"name":"L","id":38,"type":"Variant produktu","status":"pub","parent":"Šampióny"},{"name":"M","id":37,"type":"Variant produktu","status":"pub","parent":"Šampióny"},{"name":"S","id":36,"type":"Variant produktu","status":"pub","parent":"Šampióny"}],"children":8},{"name":"Muchotrávka","id":26,"type":"Produkt","status":"pub","parent":"Hríby","kids":[{"name":"Edituj","id":34,"type":"Fotografia","status":"pub","parent":"Muchotrávka"},{"name":"Edituj","id":33,"type":"Fotografia","status":"pub","parent":"Muchotrávka"},{"name":"Edituj","id":32,"type":"Fotografia","status":"pub","parent":"Muchotrávka"},{"name":"XXL","id":31,"type":"Variant produktu","status":"pub","parent":"Muchotrávka"},{"name":"XL","id":30,"type":"Variant produktu","status":"pub","parent":"Muchotrávka"},{"name":"L","id":29,"type":"Variant produktu","status":"pub","parent":"Muchotrávka"},{"name":"M","id":28,"type":"Variant produktu","status":"pub","parent":"Muchotrávka"},{"name":"S","id":27,"type":"Variant produktu","status":"pub","parent":"Muchotrávka"}],"children":8}],"children":3}],"children":4},{"name":"Pätička webu","id":17,"type":"Fat footer","status":"pub","parent":"Web","kids":[{"name":"Kontakt 2","id":20,"type":"Stĺpec v pätičke - text s odkazmi","status":"pub","parent":"Pätička webu"},{"name":"Informácie 2","id":19,"type":"Stĺpec v pätičke - text s odkazmi","status":"pub","parent":"Pätička webu"},{"name":"Odporúčame 2","id":18,"type":"Stĺpec v pätičke - text s odkazmi","status":"pub","parent":"Pätička webu"}],"children":3},{"name":"Info stránky","id":9,"type":"Priečinok","status":"pub","parent":"Web","kids":[{"name":"O nás","id":22,"type":"Článok","status":"pub","parent":"Info stránky"},{"name":"Všeobecné obchodné podmienky","id":21,"type":"Článok","status":"pub","parent":"Info stránky"}],"children":2},{"name":"Hlavička stránky","id":8,"type":"Hlavička stránky","status":"hide","parent":"Web"},{"name":"Administrátorské nastavenia","id":3,"type":"Nastavenia","status":"pub","parent":"Web","kids":[{"name":"SEO","id":265,"type":"Seo nastavenia","status":"pub","parent":"Administrátorské nastavenia"},{"name":"Kontaktný formulár","id":254,"type":"Priečinok","status":"hide","parent":"Administrátorské nastavenia","kids":[{"name":"Kontaktný formulár - email správcovi","id":257,"type":"E-mail s html šablónou","status":"hide","parent":"Kontaktný formulár"},{"name":"Úspešné odoslanie kontaktného formuláru","id":256,"type":"special","status":"hide","parent":"Kontaktný formulár"},{"name":"Kontaktný formulár - stránka formuláru","id":255,"type":"special","status":"pub","parent":"Kontaktný formulár"}],"children":3},{"name":"GDPR","id":246,"type":"Priečinok","status":"pub","parent":"Administrátorské nastavenia","kids":[{"name":"Odvolanie súhlasu so spracovaním osobných údajov - email","id":253,"type":"E-mail s html šablónou","status":"hide","parent":"GDPR"},{"name":"Zmazanie digitálnej stopy - email","id":252,"type":"E-mail s html šablónou","status":"hide","parent":"GDPR"},{"name":"Zmazanie digitálnej stopy - odoslaný formulár","id":251,"type":"Článok","status":"pub","parent":"GDPR"},{"name":"Odvolanie súhlasu - odoslaný formulár","id":250,"type":"Článok","status":"pub","parent":"GDPR"},{"name":"Zmazanie digitálnej stopy","id":249,"type":"Článok","status":"pub","parent":"GDPR"},{"name":"Odvolanie súhlasu so spracovaním osobných údajov","id":248,"type":"Článok","status":"pub","parent":"GDPR"},{"name":"GDPR pravidlá a podmienky","id":247,"type":"Článok","status":"pub","parent":"GDPR"}],"children":7},{"name":"Strážny pes v košíku","id":240,"type":"E-mail s html šablónou","status":"hide","parent":"Administrátorské nastavenia"},{"name":"Autentifikácia","id":204,"type":"Priečinok","status":"hide","parent":"Administrátorské nastavenia","kids":[{"name":"Autentifikácia - zabudnuté heslo","id":223,"type":"E-mail s html šablónou","status":"hide","parent":"Autentifikácia"},{"name":"Autentifikácia - registrácia používateľa","id":222,"type":"E-mail s html šablónou","status":"hide","parent":"Autentifikácia"},{"name":"Autentifikácia - registračný email","id":221,"type":"E-mail s html šablónou","status":"hide","parent":"Autentifikácia"},{"name":"Odhlásenie","id":215,"type":"special","status":"pub","parent":"Autentifikácia"},{"name":"Prihlásenie","id":214,"type":"special","status":"hide","parent":"Autentifikácia"},{"name":"Zabudnuté heslo","id":210,"type":"special","status":"hide","parent":"Autentifikácia","kids":[{"name":"Zabudnuté heslo: Úspešné odoslanie nového hesla","id":213,"type":"special","status":"hide","parent":"Zabudnuté heslo"},{"name":"Zabudnuté heslo: neplatná zmena","id":212,"type":"special","status":"hide","parent":"Zabudnuté heslo"},{"name":"Zabudnuté heslo: zmena hesla","id":211,"type":"special","status":"hide","parent":"Zabudnuté heslo"}],"children":3},{"name":"Registrácia","id":205,"type":"special","status":"hide","parent":"Autentifikácia","kids":[{"name":"Registrácia: Potvrdenie registrácie","id":209,"type":"special","status":"hide","parent":"Registrácia"},{"name":"Registrácia: Neúspešné potvrdenie","id":208,"type":"special","status":"hide","parent":"Registrácia"},{"name":"Registrácia: Neznáma chyba","id":207,"type":"special","status":"hide","parent":"Registrácia"},{"name":"Registrácia: Úspešná registrácia","id":206,"type":"special","status":"hide","parent":"Registrácia"}],"children":4}],"children":7},{"name":"Vyhľadávanie","id":201,"type":"Priečinok","status":"hide","parent":"Administrátorské nastavenia","kids":[{"name":"Výsledky vyhľadávania","id":202,"type":"Sekcia","status":"hide","parent":"Vyhľadávanie"}],"children":1},{"name":"Mailinglist","id":183,"type":"Priečinok","status":"hide","parent":"Administrátorské nastavenia","kids":[{"name":"Prihlásenie do mailinglistu bez potvrdzovacieho odkazu","id":200,"type":"Priečinok","status":"hide","parent":"Mailinglist"},{"name":"Mailinglist - prihlásenie Email bez potvrdenia","id":199,"type":"E-mail s html šablónou","status":"hide","parent":"Mailinglist"},{"name":"Mailinglist - prihlásenie Email","id":198,"type":"E-mail s html šablónou","status":"hide","parent":"Mailinglist"},{"name":"Mailinglist - odhlásenie Email","id":197,"type":"E-mail s html šablónou","status":"hide","parent":"Mailinglist"},{"name":"Prihlásenie do mailinglistu","id":190,"type":"Priečinok","status":"hide","parent":"Mailinglist","kids":[{"name":"Podmienky malinglistu","id":196,"type":"special","status":"pub","parent":"Prihlásenie do mailinglistu"},{"name":"Neúspešné potvrdenie prihlásenia","id":195,"type":"special","status":"hide","parent":"Prihlásenie do mailinglistu"},{"name":"Potvrdenie prihlásenia do mailinglistu","id":194,"type":"special","status":"hide","parent":"Prihlásenie do mailinglistu"},{"name":"Prijatie požiadavky na prihlásenie","id":193,"type":"special","status":"hide","parent":"Prihlásenie do mailinglistu"},{"name":"Neznáma chyba pri prihlásení","id":192,"type":"special","status":"hide","parent":"Prihlásenie do mailinglistu"},{"name":"Prihlásenie do mailinglistu - stránka na webe","id":191,"type":"special","status":"hide","parent":"Prihlásenie do mailinglistu"}],"children":6},{"name":"Odhlásenie z mailinglistu","id":184,"type":"Priečinok","status":"hide","parent":"Mailinglist","kids":[{"name":"Neúspešné potvrdenie odhlásenia","id":189,"type":"special","status":"hide","parent":"Odhlásenie z mailinglistu"},{"name":"Potvrdenie odhlásenia z mailinglistu","id":188,"type":"special","status":"hide","parent":"Odhlásenie z mailinglistu"},{"name":"Prijatie požiadavky na odhlásenie","id":187,"type":"special","status":"hide","parent":"Odhlásenie z mailinglistu"},{"name":"Neznáma chyba pri odhlásení","id":186,"type":"special","status":"hide","parent":"Odhlásenie z mailinglistu"},{"name":"Odhlásenie z mailinglistu - stránka na webe","id":185,"type":"special","status":"hide","parent":"Odhlásenie z mailinglistu"}],"children":5}],"children":6},{"name":"E-shop","id":157,"type":"Priečinok","status":"hide","parent":"Administrátorské nastavenia","kids":[{"name":"Dynamická zľava v košíku","id":276,"type":"Dynamická zľava v košíku","status":"hide","parent":"E-shop"},{"name":"Dynamické zľavy","id":244,"type":"Nastavenia","status":"hide","parent":"E-shop"},{"name":"E-maily - e-shop","id":178,"type":"Nastavenia","status":"hide","parent":"E-shop","kids":[{"name":"Automatická registrácia po objednávke","id":264,"type":"E-mail s html šablónou","status":"hide","parent":"E-maily - e-shop"},{"name":"Automatická registrácia","id":263,"type":"E-mail s html šablónou","status":"hide","parent":"E-maily - e-shop"},{"name":"Objednávka čaká na tovar","id":262,"type":"E-mail objednávky z e-shopu","status":"hide","parent":"E-maily - e-shop"},{"name":"Expedovaná objednávka","id":261,"type":"E-mail objednávky z e-shopu","status":"hide","parent":"E-maily - e-shop"},{"name":"Zrušená objednávka","id":260,"type":"E-mail objednávky z e-shopu","status":"hide","parent":"E-maily - e-shop"},{"name":"Akceptovaná objednávka","id":259,"type":"E-mail objednávky z e-shopu","status":"hide","parent":"E-maily - e-shop"},{"name":"Nová objednávka","id":258,"type":"E-mail objednávky z e-shopu","status":"hide","parent":"E-maily - e-shop"}],"children":7},{"name":"Obslužné stránky e-shopu","id":170,"type":"Nastavenia","status":"hide","parent":"E-shop","kids":[{"name":"Tlač objednávky","id":177,"type":"special","status":"hide","parent":"Obslužné stránky e-shopu"},{"name":"krok 1. - Obsah košíka","id":176,"type":"special","status":"hide","parent":"Obslužné stránky e-shopu"},{"name":"krok 2. - Dodávka a platba","id":175,"type":"special","status":"hide","parent":"Obslužné stránky e-shopu"},{"name":"krok 3. - Dodacie údaje","id":174,"type":"special","status":"hide","parent":"Obslužné stránky e-shopu"},{"name":"krok 4. - Súhrn objednávky","id":172,"type":"special","status":"hide","parent":"Obslužné stránky e-shopu","kids":[{"name":"krok 4. - Neúspešné potvrdenie platby","id":173,"type":"special","status":"hide","parent":"krok 4. - Súhrn objednávky"}],"children":1},{"name":"krok 5. - Úspešná objednávka","id":171,"type":"special","status":"hide","parent":"Obslužné stránky e-shopu"}],"children":6},{"name":"Nastavenia e-shopu","id":158,"type":"Nastavenia","status":"hide","parent":"E-shop","kids":[{"name":"Nastavenie vlastností eshopu","id":281,"type":"Vlastnosti eshopu","status":"hide","parent":"Nastavenia e-shopu"},{"name":"Eshop - oznamy v nákupnom procese","id":166,"type":"Nastavenia","status":"hide","parent":"Nastavenia e-shopu","kids":[{"name":"Garancia spokojnosti","id":169,"type":"special","status":"pub","parent":"Eshop - oznamy v nákupnom procese"},{"name":"Potrebujete poradiť?","id":168,"type":"special","status":"pub","parent":"Eshop - oznamy v nákupnom procese"},{"name":"Doručenie zásielky","id":167,"type":"special","status":"pub","parent":"Eshop - oznamy v nákupnom procese"}],"children":3},{"name":"Eshop - druhy platby","id":163,"type":"Nastavenia","status":"hide","parent":"Nastavenia e-shopu","kids":[{"name":"Prevodom na účet v EUR","id":280,"type":"Typ Platby","status":"pub","parent":"Eshop - druhy platby"},{"name":"GP webpay","id":179,"type":"Typ Platby","status":"pub","parent":"Eshop - druhy platby"},{"name":"Zaplatiť u predajcu","id":165,"type":"Typ Platby","status":"pub","parent":"Eshop - druhy platby"},{"name":"Na dobierku","id":164,"type":"Typ Platby","status":"pub","parent":"Eshop - druhy platby"}],"children":4},{"name":"Eshop - druhy dopravy","id":159,"type":"Nastavenia","status":"hide","parent":"Nastavenia e-shopu","kids":[{"name":"Vyzdvihnutie priamo u predajcu","id":162,"type":"Typ dopravy","status":"pub","parent":"Eshop - druhy dopravy"},{"name":"Doručenie kuriérom po úhrade zálohovou faktúrou","id":161,"type":"Typ dopravy","status":"pub","parent":"Eshop - druhy dopravy"},{"name":"Doručenie na dobierku","id":160,"type":"Typ dopravy","status":"pub","parent":"Eshop - druhy dopravy"}],"children":3}],"children":4}],"children":5},{"name":"Nastavenie údajov","id":23,"type":"Nastavenie údajov","status":"hide","parent":"Administrátorské nastavenia"},{"name":"Dizajn","id":7,"type":"Dizajn","status":"pub","parent":"Administrátorské nastavenia"},{"name":"Špeciálne stránky","id":4,"type":"Priečinok","status":"hide","parent":"Administrátorské nastavenia","kids":[{"name":"Google XML sitemap","id":266,"type":"special","status":"hide","parent":"Špeciálne stránky"},{"name":"403: Zakázaný prístup","id":6,"type":"special","status":"hide","parent":"Špeciálne stránky"},{"name":"404: Stránka sa nenašla","id":5,"type":"special","status":"hide","parent":"Špeciálne stránky"}],"children":3}],"children":11},{"name":"Hlavná stránka","id":2,"type":"Hlavná stránka","status":"pub","parent":"Web","kids":[{"name":"Zoznam výhod","id":282,"type":"Zoznam výhod","status":"hide","parent":"Hlavná stránka","kids":[{"name":"Sme tu pre Vás - položka v zozname výhod","id":284,"type":"Položka v zozname výhod","status":"pub","parent":"Zoznam výhod"},{"name":"Doprava zdarma - položka v zozname výhod","id":283,"type":"Položka v zozname výhod","status":"pub","parent":"Zoznam výhod"}],"children":2},{"name":"Darčekové vyrovnanie","id":267,"type":"Darčekové vyrovnanie","status":"hide","parent":"Hlavná stránka"},{"name":"Bodusové body v košíku","id":241,"type":"Bonusové body","status":"hide","parent":"Hlavná stránka"},{"name":"Zľavový kupón v košíku","id":224,"type":"voucher","status":"hide","parent":"Hlavná stránka"},{"name":"Zoznam bannerov","id":14,"type":"Zoznam bannerov","status":"pub","parent":"Hlavná stránka","kids":[{"name":"Čerstvé ovocie pre Vás","id":16,"type":"Banner","status":"pub","parent":"Zoznam bannerov"},{"name":"Prvotriedna kvalita","id":15,"type":"Banner","status":"pub","parent":"Zoznam bannerov"}],"children":2},{"name":"Promoboxy","id":10,"type":"Promoboxy","status":"pub","parent":"Hlavná stránka","kids":[{"name":"Doprava zdarma","id":13,"type":"Promobox","status":"pub","parent":"Promoboxy"},{"name":"Doručenie včera","id":12,"type":"Promobox","status":"pub","parent":"Promoboxy"},{"name":"Milý servis","id":11,"type":"Promobox","status":"pub","parent":"Promoboxy"}],"children":3},{"name":"Príklad veľkého bloku textu","id":181,"type":"Zvýraznený blok textu","status":"pub","parent":"Hlavná stránka"},{"name":"Akciové produkty","id":180,"type":"Dynamický widget","status":"pub","parent":"Hlavná stránka"}],"children":8}];;
+let webOpen = true;
+let reorderId = null;
+let reorderGroup = null;
+let reorderSnap = null;
+const LIST_COLLAPSE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3V10M3 7L6 10L9 7M6 21V14M3 17L6 14L9 17M13 6H21M13 12H21M13 18H21"/></svg>';
+const GRIP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6-14a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>';
+let mode = "type";
+let shown = 0;
+let query = "";
+let current = null;
+let dirty = false;
+let snap = "";
+let saving = false;
+
+const treeEl = document.getElementById("tree");
+const q = document.getElementById("q");
+const globalQ = document.getElementById("global-q");
+const chip = document.getElementById("chip");
+const viewNav = document.getElementById("view-nav");
+const viewDetail = document.getElementById("view-detail");
+const nameInput = document.getElementById("name");
+const editor = document.getElementById("editor");
+const source = document.getElementById("source");
+const savebar = document.getElementById("savebar");
+const toastEl = document.getElementById("toast");
+
+function fold(s) { return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+function pod(n) {
+  if (n === 1) return "1 podstránka";
+  if (n >= 2 && n <= 4) return n + " podstránky";
+  return n + " podstránok";
+}
+const MONTHS = ["jan", "feb", "mar", "apr", "máj", "jún", "júl", "aug", "sep", "okt", "nov", "dec"];
+function editedLabel(p) {
+  if (p.id === 270) return "10. okt 15:21";
+  const day = (p.id % 27) + 1;
+  const hour = 8 + (p.id % 12);
+  const minute = String((p.id * 7) % 60).padStart(2, "0");
+  return day + ". " + MONTHS[p.id % 12] + " " + hour + ":" + minute;
+}
+function allPages() {
+  const list = [];
+  const walk = (nodes) => (nodes || []).forEach(p => { list.push(p); walk(p.kids); });
+  walk(PAGES);
+  return list;
+}
+function findPage(id) {
+  return allPages().find(p => String(p.id) === String(id));
+}
+function badge(status) {
+  return status === "hide"
+    ? '<span class="badge badge-warn">Skryté</span>'
+    : '<span class="badge badge-ok">Viditeľné</span>';
+}
+function dist(a, b) {
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] : 1 + Math.min(dp[i - 1][j - 1], dp[i][j - 1], dp[i - 1][j]);
+    }
+  }
+  return dp[a.length][b.length];
+}
+function suggest(query) {
+  const f = fold(query);
+  let best = null, bestD = 3;
+  allPages().forEach(p => {
+    fold(p.name).split(/\s+/).forEach(w => {
+      const d = dist(f, w);
+      if (d < bestD) { bestD = d; best = p; }
+    });
+  });
+  return bestD <= 2 ? best : null;
+}
+function matches(p, query) {
+  if (!query) return true;
+  const slug = fold(p.name).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "stranka";
+  return fold(p.name + " " + p.id + " " + (p.group || "") + " " + slug + " /" + slug).includes(fold(query));
+}
+function row(p, depth, sortable, orderParentId) {
+  const pad = 16 + depth * 20;
+  const canOpen = !!(p.kids && p.kids.length);
+  const open = p.id === 1 ? webOpen : !!p.open;
+  const grip = sortable
+    ? `<button class="chev" type="button" draggable="true" aria-label="Presunúť" data-tip="Presunúť" data-drag="${p.id}">${GRIP}</button>`
+    : "";
+  const chev = canOpen
+    ? `<button class="chev${open ? " open" : ""}" type="button" aria-expanded="${open ? "true" : "false"}" aria-label="${open ? "Zbaliť" : "Rozbaliť"}" data-tip="${open ? "Zbaliť" : "Rozbaliť"}" data-toggle="${p.id}">${CHEV}</button>`
+    : `<span class="chev leaf" aria-hidden="true"></span>`;
+  const count = p.children ? `<span class="meta">${pod(p.children)}</span>` : "";
+  const editing = false;
+  const actions = sortable && !editing
+    ? `<div class="tree-act"></div>`
+    : editing
+    ? `<div class="rel tree-act reorder-act"><button type="button" class="btn btn-sm" data-reorder-cancel>Zrušiť</button><button type="button" class="btn btn-sm btn-primary" data-reorder-save>Uložiť</button></div>`
+    : `<div class="rel tree-act">
+      <button class="btn btn-sm" type="button" data-open-menu aria-haspopup="menu" aria-expanded="false">Akcie</button>
+      <div class="menu" role="menu" hidden>
+        <button type="button" role="menuitem" data-act="edit" data-id="${p.id}">Upraviť</button>
+        <button type="button" role="menuitem" data-act="rename" data-id="${p.id}">Premenovať</button>
+        <button type="button" role="menuitem" data-act="hide" data-id="${p.id}">${p.status === "hide" ? "Zverejniť" : "Skryť"}</button>
+      </div>
+    </div>`;
+  return `<div class="row${editing ? " reorder" : ""}" id="row-${p.id}" style="--bar:${pad + 36}px"${sortable ? ` data-sort="${p.id}"` : ""}>
+    <div class="row-name" style="padding-left:${pad}px">
+      ${grip}${chev}
+      <div class="row-title">
+        <button class="nm" type="button" data-open="${p.id}">${p.name}</button>
+        <a class="preview" href="${previewHref(p)}" target="_blank" rel="noopener" aria-label="Náhľad: ${p.name}" data-tip="Náhľad">${EYE}</a>
+      </div>
+    </div>
+    <div class="tree-id"><span class="badge badge-id">#${p.id}</span></div>
+    <div class="tree-status">${badge(p.status)}</div>
+    <div class="tree-kids">${count}</div>
+    <div class="tree-date">${editedLabel(p)}</div>
+    ${actions}
+  </div>`;
+}
+function rails(depth) {
+  let html = "";
+  for (let i = 0; i < depth; i++) {
+    html += `<span class="rail" style="left:${16 + i * 20 + 12}px" aria-hidden="true"></span>`;
+  }
+  return html;
+}
+function lineWrap(parentDepth, inner) {
+  if (!inner) return "";
+  const left = 16 + parentDepth * 20 + 12;
+  return `<div class="branch" style="--line:${left}px">${rails(parentDepth + 1)}${inner}</div>`;
+}
+function branchBody(p) {
+  if (p.kids && p.kids.length) return "";
+  if (p.children === 0) {
+    return `<div class="empty branch-msg"><p>Ešte tu nič nie je.</p><p class="hint">Podstránky pridáte v tomto priečinku.</p></div>`;
+  }
+  if (!p.children) return "";
+  if (p.load === "gaveup") {
+    return `<div class="empty branch-msg"><p>V prototype tieto podstránky nie sú.</p><p class="hint">Na deme ich vetva má. Tu je rozpísaný len Blog a článok #270.</p></div>`;
+  }
+  return `<div class="empty branch-msg"><p>Podstránky sa nepodarilo načítať.</p><button class="link" type="button" data-retry="${p.id}">Skúsiť znova</button></div>`;
+}
+function stran(n) {
+  if (n === 1) return "1 stránka";
+  if (n >= 2 && n <= 4) return n + " stránky";
+  return n + " stránok";
+}
+function anyOpen() {
+  return allPages().some(p => p.open) || (mode === "tree" && webOpen);
+}
+function orderByIds(list, ids) {
+  const map = new Map(list.map(p => [p.id, p]));
+  const next = [];
+  ids.forEach(id => { if (map.has(id)) next.push(map.get(id)); });
+  list.forEach(p => { if (!ids.includes(p.id)) next.push(p); });
+  list.splice(0, list.length, ...next);
+}
+function applyOrder(parentId, ids) {
+  if (!ids) return;
+  if (parentId === 1) orderByIds(PAGES, ids);
+  else {
+    const parent = findPage(parentId);
+    if (parent && parent.kids) orderByIds(parent.kids, ids);
+  }
+}
+function cancelReorder() {
+  if (reorderId && reorderSnap) applyOrder(reorderId, reorderSnap);
+  reorderId = null;
+  reorderGroup = null;
+  reorderSnap = null;
+  render();
+}
+function saveReorder() {
+  reorderId = null;
+  reorderGroup = null;
+  reorderSnap = null;
+  render();
+}
+function beginReorder(id, group) {
+  if (reorderId && reorderSnap && (reorderId !== id || reorderGroup !== group)) applyOrder(reorderId, reorderSnap);
+  reorderId = id;
+  reorderGroup = group;
+  if (id === 1) {
+    webOpen = true;
+    reorderSnap = PAGES.map(p => p.id);
+  } else {
+    const parent = findPage(id);
+    if (parent) parent.open = true;
+    reorderSnap = parent && parent.kids ? parent.kids.map(p => p.id) : [];
+  }
+  render();
+}
+function collapseAll() {
+  if (reorderId && reorderSnap) applyOrder(reorderId, reorderSnap);
+  reorderId = null;
+  reorderGroup = null;
+  reorderSnap = null;
+  webOpen = false;
+  allPages().forEach(p => { p.open = false; });
+  render();
+}
+function moveItem(list, fromId, toId) {
+  const from = list.findIndex(p => p.id === fromId);
+  const to = list.findIndex(p => p.id === toId);
+  if (from < 0 || to < 0 || from === to) return;
+  const [item] = list.splice(from, 1);
+  list.splice(to, 0, item);
+}
+function groupBar(name, count, depth, parentId, sorting) {
+  const pad = 16 + depth * 20;
+  const bar = pad + 36;
+  const order = count > 1 && parentId
+    ? `<button type="button" class="btn btn-sm group-bar__add" data-reorder-group="${name}" data-parent="${parentId}">Zmeniť poradie</button>`
+    : "";
+  const actions = sorting
+    ? `<button type="button" class="btn btn-sm" data-reorder-cancel>Zrušiť</button><button type="button" class="btn btn-sm btn-primary" data-reorder-save>Uložiť</button>`
+    : `${order}<button type="button" class="btn btn-sm btn-soft group-bar__add" data-insert="${name}">Vložiť ${name}</button>`;
+  return `<div class="group-bar${sorting ? " sorting" : ""}" style="--bar:${bar}px">
+    <div class="row-name" style="padding-left:${pad}px">
+      <span class="chev leaf" aria-hidden="true"></span>
+      <span class="group-bar__label">${name} <span class="meta">· ${stran(count)}</span></span>
+    </div>
+    <div class="tree-id"></div>
+    <div class="tree-status"></div>
+    <div class="tree-kids"></div>
+    <div class="tree-date"></div>
+    <div class="tree-act group-bar__acts">${actions}</div>
+  </div>`;
+}
+function hasMatch(p) {
+  if (!query) return true;
+  const slug = fold(p.name).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "stranka";
+  const hay = fold(p.name + " " + p.id + " " + (p.type || "") + " " + (p.group || "") + " " + slug + " /" + slug);
+  if (hay.includes(fold(query))) return true;
+  return (p.kids || []).some(hasMatch);
+}
+function renderPage(p, depth, sortable, orderParentId) {
+  let html = row(p, depth, sortable, orderParentId);
+  shown++;
+  const childHit = (p.kids || []).some(hasMatch);
+  const reordering = reorderId === p.id && reorderGroup;
+  const open = query ? childHit : reordering || (p.id === 1 ? webOpen : !!p.open);
+  if (!open) return html;
+  const inner = (p.kids && p.kids.length) ? renderList(p.kids, depth + 1, mode === "type", false, p.id) : branchBody(p);
+  return html + lineWrap(depth, inner);
+}
+function renderList(nodes, depth, grouped, sortable, parentId) {
+  const visible = nodes.filter(hasMatch);
+  if (!grouped) return visible.map(p => renderPage(p, depth, sortable)).join("");
+  const order = [];
+  const buckets = new Map();
+  visible.forEach(p => {
+    const g = p.type || p.group || "Stránka";
+    if (!buckets.has(g)) { buckets.set(g, []); order.push(g); }
+    buckets.get(g).push(p);
+  });
+  return order.map(g => {
+    const slice = buckets.get(g);
+    const sorting = reorderGroup === g && reorderId === parentId;
+    let body = groupBar(g, slice.length, depth, parentId, sorting);
+    slice.forEach(p => { body += renderPage(p, depth, sorting, null); });
+    return body;
+  }).join("");
+}
+function render() {
+  query = q.value.trim();
+  chip.hidden = !query;
+  chip.textContent = query ? query + " ×" : "";
+  chip.setAttribute("aria-label", query ? "Zrušiť filter " + query : "Zrušiť filter");
+  shown = 0;
+  let html = "";
+  if (mode === "prop") {
+    html += `<p class="hint" style="margin-top:0">Stránky so štítkom Zaujímavosti.</p>`;
+    allPages().filter(p => p.detail && matches(p, query)).forEach(p => { html += row(p, 0); shown++; });
+    if (!shown) html += `<div class="empty"><p>So štítkom Zaujímavosti tu zatiaľ nič nie je.</p><p class="hint">Štítok pridáte v detaile článku.</p></div>`;
+  } else if (mode === "tree") {
+    html = renderPage({ name: "Web", id: 1, status: "pub", children: 11, kids: PAGES }, 0);
+  } else {
+    html = renderList(PAGES, 0, true, false, 1);
+  }
+  if (query && shown === 0 && mode !== "prop") {
+    const s = suggest(query);
+    html = `<div class="empty"><p>Nič sa nenašlo.</p>${s ? `<p>Mysleli ste <button class="link" type="button" data-suggest="${s.id}">${s.name}</button>?</p>` : ""}<p class="hint">Skúste názov, číslo alebo časť adresy. Diakritika nie je potrebná.</p></div>`;
+  }
+  if (html && !html.includes("empty")) {
+    const slot = mode !== "prop" && anyOpen()
+      ? `<button class="chev" type="button" aria-label="Zbaliť všetko" data-tip="Zbaliť všetko" data-collapse-all>${LIST_COLLAPSE}</button>`
+      : `<span class="chev leaf" aria-hidden="true"></span>`;
+    const head = `<div class="tree-head" role="row"><div class="row-name" style="padding-left:16px">${slot}<span>Názov</span></div><span class="tree-id">ID</span><span class="tree-status">Stav</span><span class="tree-kids">Podstránky</span><span class="tree-date">Upravené</span><span></span></div>`;
+    html = head + html;
+  }
+  treeEl.innerHTML = html;
+  const mark = document.getElementById("row-" + (current && current.id));
+  if (mark) mark.classList.add("mark");
+}
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add("on");
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => toastEl.classList.remove("on"), 3200);
+}
+function closeMenus() {
+  document.querySelectorAll(".menu").forEach(m => { if (m.id === "more-menu" || m.id === "filter-menu" || m.closest(".row") || m.id === "account-menu") { m.hidden = true; } });
+  document.querySelectorAll("[aria-expanded='true']").forEach(b => { if (b.id !== "seo-edit") b.setAttribute("aria-expanded", "false"); });
+}
+function show(which) {
+  if (which === "nav" && dirty) { toast("Najprv uložte alebo zahoďte zmeny."); return; }
+  viewNav.hidden = which !== "nav";
+  viewDetail.hidden = which !== "detail";
+  viewNav.inert = which !== "nav";
+  viewDetail.inert = which !== "detail";
+  document.getElementById("go-nav").classList.toggle("on", which === "nav");
+  document.title = which === "nav" ? "BUXUS · Navigátor" : (nameInput.value || "Stránka") + " · BUXUS";
+  closeSide();
+  if (which === "nav") render();
+}
+function fields() {
+  return [...document.querySelectorAll("[data-dirty]")].map(el => el.type === "checkbox" ? el.checked : el.value);
+}
+function statusValue() {
+  const on = document.querySelector('input[name="status"]:checked');
+  return on ? on.value : "pub";
+}
+function formatStamp(value) {
+  const [date, time] = (value || "").split("T");
+  if (!date || !time) return value;
+  const [year, month, day] = date.split("-");
+  const [hour, minute] = time.split(":");
+  if (!year || !month || !day || !hour || !minute) return value;
+  return `${Number(day)}. ${Number(month)}. ${year}, ${hour}:${minute}`;
+}
+function formatVisibility(from, until) {
+  const start = formatStamp(from);
+  return until ? `Od ${start} do ${formatStamp(until)}` : `Od ${start}`;
+}
+function paintPublished() {
+  const from = document.getElementById("pub-at").value;
+  const until = document.getElementById("pub-until").value;
+  const text = document.getElementById("pub-when-text");
+  const when = document.getElementById("pub-when");
+  text.textContent = formatVisibility(from, until);
+  when.hidden = statusValue() !== "pub";
+  if (when.hidden) closeCal();
+}
+function setStatus(status) {
+  document.querySelectorAll('input[name="status"]').forEach(el => { el.checked = el.value === status; });
+  paintPublished();
+}
+function snapshot() {
+  snap = JSON.stringify({
+    name: nameInput.value,
+    html: editor.innerHTML,
+    status: statusValue(),
+    fields: fields(),
+    file: document.getElementById("file-name").textContent,
+    bg: document.getElementById("bg-name").textContent
+  });
+}
+function setDirty(on) {
+  dirty = on;
+  savebar.classList.toggle("on", on);
+}
+function readNow() {
+  return JSON.stringify({
+    name: nameInput.value,
+    html: editor.innerHTML,
+    status: statusValue(),
+    fields: fields(),
+    file: document.getElementById("file-name").textContent,
+    bg: document.getElementById("bg-name").textContent
+  });
+}
+function touch() {
+  document.getElementById("detail-title").textContent = nameInput.value.trim() || "Bez názvu";
+  document.getElementById("meta-count").textContent = document.getElementById("meta-desc").value.length;
+  document.getElementById("title-count").textContent = document.getElementById("meta-title").value.length;
+  document.getElementById("tab-count").textContent = document.getElementById("tab-title").value.length;
+  if (nameInput.classList.contains("bad") && nameInput.value.trim()) clearField(nameInput, "name-err");
+  setDirty(readNow() !== snap);
+}
+function showField(input, errId) {
+  input.classList.add("bad");
+  input.classList.remove("good");
+  if (errId) document.getElementById(errId).classList.add("on");
+  const note = input.closest(".field") && input.closest(".field").querySelector(".oknote");
+  if (note) note.classList.remove("on");
+}
+function clearField(input, errId, okId) {
+  input.classList.remove("bad");
+  if (errId) document.getElementById(errId).classList.remove("on");
+  syncSuccess(input, okId);
+}
+function syncSuccess(input) {
+  const field = input.closest(".field");
+  if (!field) return;
+  const good = !!input.value.trim() && !input.classList.contains("bad") && !input.disabled;
+  input.classList.toggle("good", good);
+  const note = field.querySelector(".oknote");
+  if (note) note.classList.remove("on");
+}
+function validate(show) {
+  let ok = true;
+  if (!nameInput.value.trim()) { if (show) showField(nameInput, "name-err"); ok = false; }
+  const desc = document.getElementById("meta-desc");
+  if (desc.value.length > 170) { if (show) showField(desc, "meta-err"); ok = false; }
+  else clearField(desc, "meta-err");
+  const mt = document.getElementById("meta-title");
+  if (mt.value.length > 35) { if (show) showField(mt, "title-err"); ok = false; }
+  else clearField(mt, "title-err");
+  const tab = document.getElementById("tab-title");
+  if (tab.value.length > 65) { if (show) showField(tab, "tab-err"); ok = false; }
+  else clearField(tab, "tab-err");
+  const url = document.getElementById("seo-url");
+  if (/\s/.test(url.value)) { if (show) showField(url, "url-err"); ok = false; }
+  else clearField(url, "url-err");
+  return ok;
+}
+function podLabel(n) {
+  if (n === 1) return "1 podstránka";
+  if (n >= 2 && n <= 4) return n + " podstránky";
+  return n + " podstránok";
+}
+function pathTo(id) {
+  const walk = (items, trail) => {
+    for (const item of items) {
+      const next = trail.concat(item);
+      if (item.id === id) return next;
+      if (item.kids && item.kids.length) {
+        const found = walk(item.kids, next);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  return walk(PAGES, []) || [];
+}
+function renderPos(p) {
+  const host = document.getElementById("pos-tree");
+  if (!host || !p) return;
+  const name = (nameInput.value || p.name || "Bez názvu").trim() || "Bez názvu";
+  const ancestors = pathTo(p.id);
+  const chain = [{ label: "Web" }];
+  if (!ancestors.length) chain.push({ label: name, current: true, kids: p.children || 0 });
+  ancestors.forEach((node, index) => {
+    const last = index === ancestors.length - 1;
+    chain.push({ label: last ? name : node.name, current: last, kids: last ? (p.children || 0) : 0 });
+  });
+  host.innerHTML = chain.map((node, depth) => {
+    const bar = 8 + depth * 16;
+    const rail = depth ? `<span class="rail" style="left:${8 + (depth - 1) * 16 + 6}px" aria-hidden="true"></span>` : "";
+    const kids = node.current && node.kids ? `<span class="meta" style="margin-left:auto">${podLabel(node.kids)}</span>` : "";
+    return `<div class="limb${node.current ? " mark" : ""}" style="--bar:${bar}px;padding-left:${bar + 12}px">${rail}<span>${node.label}</span>${kids}</div>`;
+  }).join("");
+}
+function openPage(p) {
+  if (dirty && (!current || current.id !== p.id)) { toast("Najprv uložte alebo zahoďte zmeny."); return; }
+  current = p;
+  const article = !!p.detail;
+  nameInput.value = p.name;
+  document.getElementById("detail-title").textContent = p.name;
+  document.getElementById("detail-id").textContent = "#" + p.id;
+  document.getElementById("detail-type").textContent = article || p.parent === "Blog" && p.id !== 231 ? "Článok blogu" : (p.group || "Stránka");
+  document.getElementById("detail-when").textContent = article ? "10. 10. 2025, 15:21" : "";
+  renderPos(p);
+  document.getElementById("article-bits").hidden = !article;
+  document.getElementById("side-card").hidden = !article;
+  document.getElementById("anno-card").hidden = !(article || p.id === 269);
+  editor.innerHTML = article ? ARTICLE_HTML : "<p></p>";
+  source.value = editor.innerHTML;
+  setStatus(p.status || "pub");
+  clearField(nameInput, "name-err");
+  nameInput.classList.add("good");
+  show("detail");
+  snapshot();
+  setDirty(false);
+  nameInput.focus();
+}
+
+q.addEventListener("input", () => { globalQ.value = q.value; render(); paintHits(); });
+globalQ.addEventListener("input", () => { q.value = globalQ.value; if (!viewNav.hidden) render(); paintHits(); });
+globalQ.addEventListener("focus", paintHits);
+chip.addEventListener("click", () => { q.value = ""; globalQ.value = ""; render(); paintHits(); q.focus(); });
+function setMode(next) {
+  mode = next;
+  document.querySelectorAll("#filter-menu [data-mode]").forEach((x) => {
+    x.setAttribute("aria-checked", x.dataset.mode === mode ? "true" : "false");
+  });
+  document.getElementById("filters").classList.toggle("on", mode !== "type");
+  render();
+}
+document.getElementById("filters").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const m = document.getElementById("filter-menu");
+  const will = m.hidden;
+  closeMenus();
+  m.hidden = !will;
+  e.currentTarget.setAttribute("aria-expanded", will ? "true" : "false");
+});
+document.getElementById("filter-menu").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-mode]");
+  if (!b) return;
+  setMode(b.dataset.mode);
+  closeMenus();
+});
+treeEl.addEventListener("dragstart", (e) => {
+  const grip = e.target.closest("[data-drag]");
+  if (!grip) return;
+  e.dataTransfer.setData("text/plain", grip.dataset.drag);
+  e.dataTransfer.effectAllowed = "move";
+});
+treeEl.addEventListener("dragover", (e) => {
+  const row = e.target.closest(".row[data-sort]");
+  if (!row) return;
+  e.preventDefault();
+  document.querySelectorAll(".row.drop").forEach(item => { if (item !== row) item.classList.remove("drop"); });
+  row.classList.add("drop");
+});
+treeEl.addEventListener("dragleave", (e) => {
+  const row = e.target.closest(".row[data-sort]");
+  if (row && !row.contains(e.relatedTarget)) row.classList.remove("drop");
+});
+treeEl.addEventListener("drop", (e) => {
+  const row = e.target.closest(".row[data-sort]");
+  if (!row || !reorderId) return;
+  e.preventDefault();
+  row.classList.remove("drop");
+  const fromId = Number(e.dataTransfer.getData("text/plain"));
+  const toId = Number(row.dataset.sort);
+  if (reorderId === 1) moveItem(PAGES, fromId, toId);
+  else {
+    const parent = findPage(reorderId);
+    if (parent && parent.kids) moveItem(parent.kids, fromId, toId);
+  }
+  render();
+});
+treeEl.addEventListener("click", (e) => {
+  const retry = e.target.closest("[data-retry]");
+  if (retry) {
+    const page = findPage(retry.dataset.retry);
+    if (page) page.load = "gaveup";
+    render();
+    return;
+  }
+  const insert = e.target.closest("[data-insert]");
+  if (insert) {
+    toast("Vloženie typu " + insert.dataset.insert + " je v pôvodnej administrácii.");
+    return;
+  }
+  if (e.target.closest("[data-reorder-cancel]")) {
+    cancelReorder();
+    return;
+  }
+  if (e.target.closest("[data-reorder-save]")) {
+    saveReorder();
+    return;
+  }
+  const reorderStart = e.target.closest("[data-reorder-group]");
+  if (reorderStart) {
+    beginReorder(Number(reorderStart.dataset.parent), reorderStart.dataset.reorderGroup);
+    return;
+  }
+  if (e.target.closest("[data-collapse-all]")) {
+    collapseAll();
+    return;
+  }
+  const toggle = e.target.closest("[data-toggle]");
+  if (toggle) {
+    if (toggle.dataset.toggle === "1") webOpen = !webOpen;
+    else { const p = findPage(toggle.dataset.toggle); if (p) p.open = !p.open; }
+    render();
+    return;
+  }
+  const sug = e.target.closest("[data-suggest]");
+  if (sug) { q.value = findPage(sug.dataset.suggest).name; globalQ.value = q.value; render(); return; }
+  const act = e.target.closest("[data-act]");
+  if (act) {
+    const id = Number(act.dataset.id);
+    closeMenus();
+    if (act.dataset.act === "order") {
+      beginReorder(id, act.dataset.group || "");
+      return;
+    }
+    const p = findPage(id);
+    if (act.dataset.act === "hide") { p.status = p.status === "hide" ? "pub" : "hide"; render(); toast(p.status === "hide" ? "Stránka je skrytá." : "Stránka je viditeľná."); return; }
+    openPage(p);
+    if (act.dataset.act === "rename") nameInput.select();
+    return;
+  }
+  const menuBtn = e.target.closest("[data-open-menu]");
+  if (menuBtn) {
+    const menu = menuBtn.nextElementSibling;
+    const will = menu.hidden;
+    closeMenus();
+    menu.hidden = !will;
+    menuBtn.setAttribute("aria-expanded", will ? "true" : "false");
+    return;
+  }
+  const open = e.target.closest("[data-open]");
+  if (open) openPage(findPage(open.dataset.open));
+});
+
+function paintHits() {
+  const box = document.getElementById("hits");
+  const query = globalQ.value.trim();
+  if (!query || document.activeElement !== globalQ) { box.hidden = true; return; }
+  const found = allPages().filter(p => matches(p, query)).slice(0, 6);
+  if (!found.length) {
+    const s = suggest(query);
+    box.innerHTML = `<p class="hint" style="padding:8px 12px;margin:0">Nič sa nenašlo.${s ? ` Mysleli ste ${s.name}?` : ""}</p>`;
+  } else {
+    box.innerHTML = found.map(p => `<button type="button" role="option" data-hit="${p.id}">${p.name} <span class="meta">#${p.id}</span></button>`).join("");
+  }
+  box.hidden = false;
+}
+document.getElementById("hits").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-hit]");
+  if (!b) return;
+  document.getElementById("hits").hidden = true;
+  openPage(findPage(b.dataset.hit));
+});
+
+document.getElementById("back-title").addEventListener("click", () => show("nav"));
+document.getElementById("go-nav").addEventListener("click", (e) => { e.preventDefault(); show("nav"); });
+
+nameInput.addEventListener("input", () => { touch(); if (current) renderPos(current); });
+nameInput.addEventListener("blur", () => {
+  if (!nameInput.value.trim()) showField(nameInput, "name-err");
+  else clearField(nameInput, "name-err");
+});
+editor.addEventListener("input", touch);
+source.addEventListener("input", () => { editor.innerHTML = source.value; touch(); });
+document.querySelectorAll("[data-dirty]").forEach(el => {
+  el.addEventListener("input", touch);
+  el.addEventListener("change", touch);
+  el.addEventListener("blur", () => { validate(true); syncSuccess(el); });
+});
+document.querySelectorAll('input[name="status"]').forEach(el => el.addEventListener("change", () => {
+  if (current) current.status = statusValue();
+  paintPublished();
+  touch();
+}));
+const CAL_MONTHS = ["január","február","marec","apríl","máj","jún","júl","august","september","október","november","december"];
+const CAL_DAYS = ["Po","Ut","St","Št","Pi","So","Ne"];
+const calPop = document.getElementById("pub-cal");
+const calScrim = document.getElementById("cal-scrim");
+const calEdit = document.getElementById("pub-when-edit");
+let calCursor = new Date(2025, 9, 1);
+let calUntilOn = false;
+let calDraftFrom = "";
+let calDraftUntil = "";
+function stampParts(value) {
+  const [date, time = "00:00"] = (value || "").split("T");
+  const [y, m, d] = (date || "").split("-").map(Number);
+  return { y, m, d, time, key: date };
+}
+function joinStamp(y, m, d, time) {
+  return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}T${time || "00:00"}`;
+}
+function longDate(value) {
+  const part = stampParts(value);
+  if (!part.y) return "Vyberte dátum";
+  return `${part.d}. ${CAL_MONTHS[part.m - 1]} ${part.y}`;
+}
+function closeCal() {
+  calPop.hidden = true;
+  calScrim.hidden = true;
+  calEdit.setAttribute("aria-expanded", "false");
+}
+function monthGrid(y, m, from, until) {
+  const start = new Date(y, m, 1);
+  const shift = (start.getDay() + 6) % 7;
+  const first = new Date(y, m, 1 - shift);
+  let cells = "";
+  for (let i = 0; i < 42; i++) {
+    const day = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i);
+    const key = `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,"0")}-${String(day.getDate()).padStart(2,"0")}`;
+    const out = day.getMonth() !== m;
+    const isFrom = key === from.key;
+    const isUntil = calUntilOn && key === until.key;
+    const inMid = calUntilOn && from.key && until.key && key > from.key && key < until.key;
+    cells += `<button type="button" data-day="${key}" class="${out ? "out" : ""}${isFrom || isUntil ? " on" : ""}${inMid ? " mid" : ""}">${day.getDate()}</button>`;
+  }
+  return `<div class="cal-month"><div class="cal-title">${CAL_MONTHS[m]} ${y}</div><div class="cal-week">${CAL_DAYS.map(d => `<span>${d}</span>`).join("")}</div><div class="cal-grid">${cells}</div></div>`;
+}
+function renderCal() {
+  const from = stampParts(calDraftFrom);
+  const until = stampParts(calDraftUntil);
+  const y = calCursor.getFullYear();
+  const m = calCursor.getMonth();
+  const next = new Date(y, m + 1, 1);
+  document.getElementById("cal-months").innerHTML = `<button type="button" class="cal-nav-btn" data-cal-nav="-1" aria-label="Predchádzajúci mesiac">‹</button>${monthGrid(y, m, from, until)}${monthGrid(next.getFullYear(), next.getMonth(), from, until)}<button type="button" class="cal-nav-btn" data-cal-nav="1" aria-label="Ďalší mesiac">›</button>`;
+  document.getElementById("cal-from-label").textContent = longDate(calDraftFrom);
+  document.getElementById("cal-until-label").textContent = calDraftUntil ? longDate(calDraftUntil) : "Vyberte koniec";
+  document.getElementById("cal-from-time").value = from.time || "00:00";
+  document.getElementById("cal-until-time").value = until.time || "23:59";
+  document.getElementById("cal-until-on").checked = calUntilOn;
+  document.getElementById("cal-until-fields").hidden = !calUntilOn;
+  document.getElementById("cal-lead").textContent = calUntilOn ? "Stránka bude viditeľná v tomto rozsahu." : "Stránka bude viditeľná od tohto dátumu a času.";
+}
+function openCal() {
+  calDraftFrom = document.getElementById("pub-at").value;
+  calDraftUntil = document.getElementById("pub-until").value;
+  const from = stampParts(calDraftFrom);
+  calCursor = from.y ? new Date(from.y, from.m - 1, 1) : new Date();
+  calUntilOn = !!calDraftUntil;
+  renderCal();
+  calPop.hidden = false;
+  calScrim.hidden = false;
+  calEdit.setAttribute("aria-expanded", "true");
+}
+calEdit.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (calPop.hidden) openCal();
+  else closeCal();
+});
+document.getElementById("cal-months").addEventListener("click", (e) => {
+  const nav = e.target.closest("[data-cal-nav]");
+  if (nav) { calCursor.setMonth(calCursor.getMonth() + Number(nav.dataset.calNav)); renderCal(); return; }
+  const b = e.target.closest("[data-day]");
+  if (!b) return;
+  const [y, m, d] = b.dataset.day.split("-").map(Number);
+  const from = stampParts(calDraftFrom);
+  const until = stampParts(calDraftUntil);
+  if (!calUntilOn) {
+    calDraftFrom = joinStamp(y, m, d, from.time);
+  } else if (!until.key || until.key === from.key) {
+    if (b.dataset.day < from.key) {
+      calDraftUntil = joinStamp(from.y, from.m, from.d, until.time || "23:59");
+      calDraftFrom = joinStamp(y, m, d, from.time);
+    } else {
+      calDraftUntil = joinStamp(y, m, d, until.time || "23:59");
+    }
+  } else {
+    calDraftFrom = joinStamp(y, m, d, from.time);
+    calDraftUntil = "";
+  }
+  renderCal();
+});
+document.getElementById("cal-until-on").addEventListener("change", () => {
+  calUntilOn = document.getElementById("cal-until-on").checked;
+  if (!calUntilOn) calDraftUntil = "";
+  renderCal();
+});
+document.getElementById("cal-from-time").addEventListener("change", () => {
+  const from = stampParts(calDraftFrom);
+  calDraftFrom = joinStamp(from.y, from.m, from.d, document.getElementById("cal-from-time").value);
+});
+document.getElementById("cal-until-time").addEventListener("change", () => {
+  const until = stampParts(calDraftUntil);
+  if (!until.key) return;
+  calDraftUntil = joinStamp(until.y, until.m, until.d, document.getElementById("cal-until-time").value);
+});
+document.getElementById("cal-save").addEventListener("click", () => {
+  document.getElementById("pub-at").value = calDraftFrom;
+  document.getElementById("pub-until").value = calUntilOn && calDraftUntil ? calDraftUntil : "";
+  paintPublished();
+  touch();
+  closeCal();
+});
+document.getElementById("cal-cancel").addEventListener("click", closeCal);
+document.getElementById("cal-x").addEventListener("click", closeCal);
+calScrim.addEventListener("click", closeCal);
+document.querySelectorAll("[data-cmd]").forEach(b => b.addEventListener("click", () => {
+  if (source.hidden === false) return;
+  editor.focus();
+  if (b.dataset.cmd === "link") {
+    const url = window.prompt("Adresa odkazu");
+    if (url) document.execCommand("createLink", false, url);
+  } else document.execCommand(b.dataset.cmd, false, null);
+  touch();
+}));
+document.getElementById("src-toggle").addEventListener("click", () => {
+  const btn = document.getElementById("src-toggle");
+  const showSrc = source.hidden;
+  if (showSrc) source.value = editor.innerHTML.trim();
+  else editor.innerHTML = source.value || "<p></p>";
+  source.hidden = !showSrc;
+  editor.hidden = showSrc;
+  btn.classList.toggle("on", showSrc);
+  btn.setAttribute("aria-label", showSrc ? "Text" : "Zdroj");
+  document.querySelectorAll("[data-cmd]").forEach(x => { x.disabled = showSrc; });
+  if (!showSrc) touch();
+});
+document.getElementById("seo-edit").addEventListener("click", () => {
+  const box = document.getElementById("seo-fields");
+  const btn = document.getElementById("seo-edit");
+  box.hidden = !box.hidden;
+  btn.setAttribute("aria-expanded", box.hidden ? "false" : "true");
+  btn.textContent = box.hidden ? "Upraviť na tejto stránke" : "Skryť vlastné SEO";
+});
+document.getElementById("no-seo").addEventListener("change", () => {
+  const url = document.getElementById("seo-url");
+  url.disabled = document.getElementById("no-seo").checked;
+  if (url.disabled) {
+    url.classList.remove("good", "bad");
+    const note = url.closest(".field").querySelector(".oknote");
+    if (note) note.classList.remove("on");
+  } else syncSuccess(url);
+});
+document.getElementById("gen-url").addEventListener("click", () => {
+  const slug = fold(nameInput.value).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "stranka";
+  document.getElementById("seo-url").value = "/blog/" + slug;
+  if (!document.getElementById("seo-url").disabled) syncSuccess(document.getElementById("seo-url"));
+  touch();
+});
+document.getElementById("add-value").addEventListener("click", () => {
+  const wrap = document.getElementById("extra-values");
+  const label = document.createElement("label");
+  label.className = "field";
+  label.style.marginTop = "12px";
+  label.innerHTML = '<span>Ďalšia hodnota <em class="opt">(nepovinné)</em></span><input type="text" data-dirty>';
+  wrap.appendChild(label);
+  const input = label.querySelector("input");
+  input.addEventListener("input", touch);
+  input.focus();
+  touch();
+});
+
+function bindFile(btnId, inputId, nameId, hintId, clearId) {
+  const btn = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  btn.addEventListener("click", () => input.click());
+  input.addEventListener("change", () => {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    document.getElementById(nameId).textContent = f.name;
+    if (hintId) document.getElementById(hintId).textContent = "Súbor je vybraný.";
+    if (clearId) document.getElementById(clearId).disabled = false;
+    touch();
+  });
+}
+bindFile("pick", "file", "file-name", "file-hint");
+bindFile("pick-bg", "file-bg", "bg-name", null, "clear-bg");
+document.getElementById("clear-bg").addEventListener("click", () => {
+  document.getElementById("bg-name").textContent = "Obrázok nie je vybraný";
+  document.getElementById("file-bg").value = "";
+  document.getElementById("clear-bg").disabled = true;
+  touch();
+});
+const drop = document.getElementById("drop");
+["dragover", "dragenter"].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!f) return;
+  document.getElementById("file-name").textContent = f.name;
+  document.getElementById("file-hint").textContent = "Súbor je vybraný.";
+  touch();
+});
+
+document.getElementById("discard").addEventListener("click", () => {
+  const data = JSON.parse(snap);
+  nameInput.value = data.name;
+  editor.innerHTML = data.html;
+  source.value = data.html;
+  document.getElementById("detail-title").textContent = data.name;
+  setStatus(data.status);
+  document.querySelectorAll("[data-dirty]").forEach((el, i) => {
+    if (data.fields[i] === undefined) return;
+    if (el.type === "checkbox") el.checked = data.fields[i];
+    else el.value = data.fields[i];
+  });
+  paintPublished();
+  document.getElementById("file-name").textContent = data.file;
+  document.getElementById("bg-name").textContent = data.bg;
+  document.querySelectorAll(".bad").forEach(el => el.classList.remove("bad"));
+  document.querySelectorAll(".err").forEach(el => el.classList.remove("on"));
+  clearField(nameInput, "name-err");
+  setDirty(false);
+});
+async function onSave() {
+  if (saving) return;
+  if (!validate(true)) {
+    const bad = document.querySelector(".bad");
+    if (bad) { bad.focus(); if (bad.closest("#seo-fields") ) document.getElementById("seo-fields").hidden = false; }
+    return;
+  }
+  saving = true;
+  const btns = [document.getElementById("save")].filter(Boolean);
+  btns.forEach(btn => { btn.classList.add("is-loading"); btn.disabled = true; btn.textContent = "Ukladám…"; });
+  await new Promise(r => setTimeout(r, 700));
+  if (current) current.name = nameInput.value.trim();
+  if (current) current.status = statusValue();
+  snapshot();
+  saving = false;
+  btns.forEach(btn => { btn.classList.remove("is-loading"); btn.textContent = "Uložiť"; });
+  setDirty(false);
+  toast("Uložené.");
+  render();
+}
+document.getElementById("save").addEventListener("click", onSave);
+
+const more = document.getElementById("more");
+const menu = document.getElementById("more-menu");
+more.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const will = menu.hidden;
+  closeMenus();
+  menu.hidden = !will;
+  more.setAttribute("aria-expanded", will ? "true" : "false");
+});
+document.getElementById("account").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const m = document.getElementById("account-menu");
+  const will = m.hidden;
+  closeMenus();
+  m.hidden = !will;
+  e.currentTarget.setAttribute("aria-expanded", will ? "true" : "false");
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".menu") && !e.target.closest("[data-open-menu]") && !e.target.closest("#more") && !e.target.closest("#account") && !e.target.closest("#filters")) closeMenus();
+  if (!e.target.closest(".find")) document.getElementById("hits").hidden = true;
+});
+document.querySelector(".nav").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-soon]");
+  if (!b) return;
+  toast("Táto obrazovka je v pôvodnej administrácii. Tu je Navigátor a detail stránky.");
+  closeSide();
+});
+document.body.addEventListener("click", (e) => {
+  const b = e.target.closest("#more-menu [data-soon], #account-menu [data-soon], #help");
+  if (!b) return;
+  closeMenus();
+  if (b.id === "help") toast("Pomoc je v pôvodnej administrácii, odkaz vpravo hore.");
+  else toast("Táto akcia je v pôvodnej administrácii.");
+});
+
+const overlay = document.getElementById("overlay");
+const delItems = () => [document.getElementById("del-x"), document.getElementById("del-cancel"), document.getElementById("del-ok")];
+function openDel() {
+  menu.hidden = true;
+  const name = nameInput.value.trim();
+  document.getElementById("del-copy").textContent = name
+    ? "Stránka „" + name + "“ aj jej podstránky sa presunú do archívu. Z archívu ich viete vrátiť."
+    : "Stránka aj jej podstránky sa presunú do archívu. Z archívu ich viete vrátiť.";
+  overlay.classList.add("on");
+  document.getElementById("del-x").focus();
+}
+function closeDel() { overlay.classList.remove("on"); more.focus(); }
+document.getElementById("ask-delete").addEventListener("click", openDel);
+document.getElementById("del-cancel").addEventListener("click", closeDel);
+document.getElementById("del-x").addEventListener("click", closeDel);
+overlay.addEventListener("click", (e) => { if (e.target === overlay) closeDel(); });
+document.getElementById("del-ok").addEventListener("click", () => {
+  closeDel();
+  dirty = false;
+  if (current) current.status = "hide";
+  toast("Stránka je v archíve.");
+  show("nav");
+});
+document.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); globalQ.focus(); globalQ.select(); }
+  if (e.key === "Escape") {
+    if (reorderId) { cancelReorder(); }
+    if (overlay.classList.contains("on")) closeDel();
+    closeMenus();
+    document.getElementById("hits").hidden = true;
+    closeSide();
+  }
+  if (e.key === "Tab" && overlay.classList.contains("on")) {
+    const items = delItems();
+    const i = items.indexOf(document.activeElement);
+    e.preventDefault();
+    const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : (i === items.length - 1 || i < 0 ? 0 : i + 1);
+    items[next].focus();
+  }
+});
+
+const iconTip = document.getElementById("icon-tip");
+let iconTipTimer;
+function hideIconTip() {
+  clearTimeout(iconTipTimer);
+  iconTip.hidden = true;
+}
+document.addEventListener("mouseover", (e) => {
+  const el = e.target.closest("[data-tip]");
+  if (!el || el.getAttribute("aria-expanded") === "true") { hideIconTip(); return; }
+  clearTimeout(iconTipTimer);
+  iconTipTimer = setTimeout(() => {
+    const r = el.getBoundingClientRect();
+    iconTip.textContent = el.dataset.tip;
+    iconTip.style.left = (r.left + r.width / 2) + "px";
+    iconTip.style.top = r.top + "px";
+    iconTip.hidden = false;
+  }, 300);
+});
+document.addEventListener("mouseout", (e) => {
+  if (e.target.closest("[data-tip]") && !e.relatedTarget?.closest("[data-tip]")) hideIconTip();
+});
+document.addEventListener("scroll", hideIconTip, true);
+
+function closeSide() { document.getElementById("side").classList.remove("open"); document.getElementById("scrim").classList.remove("on"); }
+document.getElementById("open-nav").addEventListener("click", () => {
+  document.getElementById("side").classList.add("open");
+  document.getElementById("scrim").classList.add("on");
+});
+document.getElementById("scrim").addEventListener("click", closeSide);
+
+render();
+snapshot();
+touch();
+setDirty(false);
+</script>
+</body>
+</html>
